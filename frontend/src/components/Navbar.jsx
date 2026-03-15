@@ -381,7 +381,7 @@ const Navbar = () => {
 
                         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                             <Link to="/">
-                                <img src="/logocroppedquick.png" alt="Logo" className="h-10 w-auto object-contain" />
+                                <img src="/logocroppedquick-bg.png" alt="Logo" className="h-10 w-auto object-contain" />
                             </Link>
                         </div>
 

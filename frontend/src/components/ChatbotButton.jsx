@@ -31,7 +31,8 @@ const ChatbotButton = () => {
         setIsTyping(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/chatbot', {
+            const AI_URL = (import.meta.env.VITE_AI_SERVICE_URL || 'https://quickcart-ai-ecommerce-app.onrender.com/api').replace(/\/+$/, '');
+            const response = await fetch(`${AI_URL}/chatbot`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: userMsg.text })
