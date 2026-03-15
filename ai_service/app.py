@@ -19,7 +19,7 @@ else:
 
 try:
     # Use stable gemini-1.5-flash
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 except Exception as e:
     model = None
     print(f"Error initializing Gemini: {e}")
