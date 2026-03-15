@@ -67,7 +67,14 @@ const ForgotPassword = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4">
             <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-slate-100">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">Password assistance</h2>
+                <div className="text-center mb-6">
+                    <img 
+                        src="/logocroppedquick.png" 
+                        alt="QuickCart Logo" 
+                        className="h-12 w-auto mx-auto mb-4 object-contain"
+                    />
+                    <h2 className="text-2xl font-bold text-slate-900">Password assistance</h2>
+                </div>
 
                 <AnimatePresence mode="wait">
                     {step === 1 && (

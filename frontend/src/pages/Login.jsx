@@ -60,11 +60,15 @@ const Login = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-xl border border-slate-100"
             >
-                <div className="text-center">
-                    <div className="w-12 h-12 bg-blue-600 rounded-lg mx-auto flex items-center justify-center mb-4">
-                        <span className="text-white font-bold text-2xl">Q</span>
-                    </div>
-                    <h2 className="mt-2 text-3xl font-extrabold text-slate-900">Sign in</h2>
+                <div className="text-center mb-8">
+                    <Link to="/">
+                        <img 
+                            src="/logocroppedquick.png" 
+                            alt="QuickCart Logo" 
+                            className="h-12 w-auto mx-auto mb-4 object-contain"
+                        />
+                    </Link>
+                    <h2 className="mt-4 text-3xl font-extrabold text-slate-900">Sign in</h2>
                 </div>
 
                 <form className="mt-8 space-y-6" onSubmit={handleLogin}>
