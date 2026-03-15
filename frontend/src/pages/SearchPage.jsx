@@ -48,7 +48,8 @@ const SearchPage = () => {
 
                 // Fetch AI recommendations for relatable products
                 if (searchQuery) {
-                    fetch('http://localhost:5000/api/recommend', {
+                const AI_URL = import.meta.env.VITE_AI_SERVICE_URL || 'https://quickcart-ai-ecommerce-app.onrender.com/api';
+                const aiRes = await fetch(`${AI_URL.replace(/\/+$/, '')}/recommend`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

@@ -9,13 +9,19 @@ import { store } from './app/store'
 const originalFetch = window.fetch;
 window.fetch = function () {
     let [resource, config] = arguments;
-    // Get the base URL and remove trailing slash or /api if it exists to avoid duplication
-    let API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '').replace(/\/+$/, '');
     
-    if (typeof resource === 'string' && resource.startsWith('/api') && API_BASE) {
+    // Primary source: import.meta.env (injected at build time)
+    // Secondary source: hardcoded fallback for mobile ease (Render.com URL)
+    let API_BASE = import.meta.env.VITE_API_URL || 'https://quickcart-backend-8x2e.onrender.com';
+    
+    // Clean up API_BASE to avoid duplication
+    API_BASE = API_BASE.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+    
+    if (typeof resource === 'string' && (resource.startsWith('/api') || resource.startsWith('api/')) && API_BASE) {
         // Prepend the base URL but ensure it's absolute
         if (!resource.startsWith('http')) {
-            resource = `${API_BASE}${resource}`;
+            const path = resource.startsWith('/') ? resource : `/${resource}`;
+            resource = `${API_BASE}${path}`;
         }
     }
     
