@@ -13,10 +13,8 @@ services:
   # Backend Service (Spring Boot)
   - type: web
     name: quickcart-backend
-    env: java
+    env: docker
     rootDir: backend
-    buildCommand: chmod +x mvnw && ./mvnw clean install -DskipTests
-    startCommand: java -jar target/*.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         sync: false
