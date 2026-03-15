@@ -6,7 +6,7 @@
   body {
     @apply font-sans antialiased bg-slate-50 text-slate-900;
     font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 
   button, input, select, textarea {
@@ -38,8 +38,12 @@
     scrollbar-width: none;
   }
   
-  /* Mobile-specific adjustments */
+  /* Global Mobile UI Refinements */
   @media (max-width: 768px) {
+    html {
+      font-size: 16px; /* Increased for better readability */
+    }
+
     .mobile-px {
       @apply px-4;
     }
@@ -49,8 +53,51 @@
     .mobile-stack {
       @apply flex-col;
     }
-    .mobile-text-sm {
-      font-size: 0.875rem;
+    
+    /* More comfortable spacing for mobile */
+    .p-4, .p-5, .p-6, .p-8 {
+      padding: 0.85rem !important; 
+    }
+    
+    .px-4, .px-5, .px-6, .px-8 {
+      padding-left: 0.85rem !important;
+      padding-right: 0.85rem !important;
+    }
+
+    .py-8, .py-12, .py-16 {
+      padding-top: 1.25rem !important;
+      padding-bottom: 1.25rem !important;
+    }
+
+    .mb-8, .mb-6, .mb-10 {
+      margin-bottom: 1rem !important;
+    }
+
+    .gap-6, .gap-8 {
+        gap: 0.85rem !important;
+    }
+
+    .text-3xl { font-size: 1.6rem !important; }
+    .text-2xl { font-size: 1.4rem !important; }
+    .text-xl { font-size: 1.15rem !important; }
+    .text-lg { font-size: 1rem !important; }
+    
+    .h-64, .h-56, .h-48, .h-40 {
+        height: auto !important;
+        max-height: 160px !important;
+    }
+    
+    .w-40 {
+      width: 6rem !important;
+    }
+    
+    .aspect-square {
+        max-height: 140px;
+    }
+
+    /* Fixed Sidebar overlap with status bar */
+    .sidebar-header {
+        padding-top: calc(1.5rem + env(safe-area-inset-top)) !important;
     }
   }
 }
@@ -74,8 +121,11 @@
 
 .mobile-header-spacing {
   @media (max-width: 768px) {
-    padding-top: calc(0.5rem + env(safe-area-inset-top));
+    padding-top: calc(0.75rem + env(safe-area-inset-top));
+    padding-bottom: 0.75rem;
     height: auto !important;
-    min-height: 80px;
+    min-height: 65px;
+    background-color: #ffffff !important; /* Force white navbar on mobile */
+    color: #000000 !important;
   }
 }

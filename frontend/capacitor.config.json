@@ -1,5 +1,12 @@
 {
   "appId": "com.quickcart.mobile",
   "appName": "QuickCart",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#FFFFFF",
+      "overlaysWebView": false
+    }
+  }
 }

@@ -590,22 +590,28 @@ const AdminDashboard = () => {
     return (
         <div className="bg-slate-50 min-h-screen flex flex-col md:flex-row">
             {/* Mobile Header */}
-            <div className="md:hidden bg-white border-b border-slate-200 p-4 sticky top-0 z-50 flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-                        <Package className="w-4 h-4 text-white" />
+            <div className="md:hidden bg-slate-900 border-b border-slate-800 p-3 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+                <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-md">
+                        <Package className="w-5 h-5 text-white" />
                     </div>
-                    <span className="font-bold text-lg text-slate-900 tracking-tight">QuickCart Admin</span>
+                    <div>
+                        <span className="font-black text-sm text-white uppercase tracking-wider">QuickCart</span>
+                        <span className="block text-[10px] text-orange-400 font-bold uppercase -mt-1 tracking-[0.2em]">Admin Panel</span>
+                    </div>
                 </div>
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                <button 
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+                    className="p-2 bg-slate-800 text-white rounded-lg transition-all active:scale-95 border border-slate-700"
+                >
+                    {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
             </div>
 
             {/* Sidebar */}
             <div className={`
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                fixed md:static inset-0 z-40 w-full md:w-64 bg-white border-r border-slate-200 p-4 transform transition-transform duration-300 ease-in-out md:min-h-[calc(100vh-64px)] overflow-y-auto
+                fixed md:static inset-y-0 left-0 z-[60] w-[280px] md:w-64 bg-white border-r border-slate-200 p-4 transform transition-transform duration-300 ease-out md:min-h-screen overflow-y-auto shadow-2xl md:shadow-none
             `}>
                 <div className="hidden md:flex items-center space-x-2 px-2 mb-8 mt-2">
                     <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
@@ -637,8 +643,8 @@ const AdminDashboard = () => {
             )}
 
             {/* Main Content */}
-            <div className="flex-1 p-4 md:p-8 overflow-y-auto">
-                <div className="max-w-4xl mx-auto">
+            <div className="flex-1 p-3 md:p-8 overflow-y-auto">
+                <div className="max-w-4xl mx-auto space-y-4">
 
                     {statusMsg.text && (
                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={`p-4 rounded-lg mb-6 text-sm font-medium ${statusMsg.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
@@ -647,11 +653,11 @@ const AdminDashboard = () => {
                     )}
 
                     {activeTab === 'banners' && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-                            <h2 className="text-2xl font-bold text-slate-800 mb-6 block border-b pb-4">Manage Home Page Banners</h2>
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-8">
+                            <h2 className="text-lg md:text-2xl font-black text-slate-800 mb-4 md:mb-6 block border-b pb-3 uppercase tracking-tight">Manage Banners</h2>
 
-                            <form onSubmit={handleAddBanner} className="space-y-6 mb-8 border border-slate-200 rounded-xl p-6 bg-slate-50 relative">
-                                <h3 className="text-lg font-bold text-slate-800">Add New Banner</h3>
+                            <form onSubmit={handleAddBanner} className="space-y-4 mb-8 border border-slate-100 rounded-xl p-4 md:p-6 bg-slate-50 relative">
+                                <h3 className="text-sm md:text-lg font-bold text-slate-800">Add New Banner</h3>
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">Upload Banner Image (Cloudinary)</label>
                                     <div

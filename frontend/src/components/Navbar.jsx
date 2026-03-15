@@ -193,20 +193,20 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-slate-800 border-b border-slate-800 sticky top-0 z-50 safe-area-top mobile-header-spacing">
+        <nav className="bg-slate-800 md:bg-slate-800 border-b border-slate-800 md:border-slate-800 sticky top-0 z-50 safe-area-top mobile-header-spacing shadow-sm">
             <div className="max-w-[1500px] mx-auto px-2 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center min-h-[64px] h-auto py-2 sm:py-0">
                     {/* Left & Logo */}
                     <div className="flex items-center shrink-0">
-                        <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 mr-2 sm:mr-3 text-white hover:bg-slate-800 rounded-lg transition-colors group flex flex-col items-center">
+                        <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 mr-2 sm:mr-3 text-slate-800 md:text-white hover:bg-slate-100 md:hover:bg-slate-800 rounded-lg transition-colors group flex flex-col items-center">
                             <Menu className="w-6 h-6 group-hover:text-orange-400" />
-                            <span className="text-[12px] font-bold mt-0.5">All</span>
+                            <span className="text-[10px] md:text-[12px] font-extrabold uppercase mt-0.5">All</span>
                         </button>
                         <Link to="/" className="flex items-center ml-0 sm:ml-2">
                             <img
                                 src="/logocroppedquick.png"
                                 alt="QuickCart Logo"
-                                className="h-6 w-auto sm:h-10 object-contain transition-transform hover:scale-105"
+                                className="h-6 sm:h-10 w-auto object-contain transition-transform hover:scale-105"
                             />
                         </Link>
 
@@ -362,7 +362,7 @@ const Navbar = () => {
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 className="text-white hover:text-orange-400 transition relative p-1"
                             >
-                                <Bell className="w-6 h-6" />
+                                <Bell className="w-6 h-6 text-slate-800 md:text-white" />
                                 {notifications.items.filter(n => !n.read).length > 0 && (
                                     <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                                         {notifications.items.filter(n => !n.read).length}
@@ -439,7 +439,7 @@ const Navbar = () => {
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
                                     className="flex items-center gap-1 text-white hover:text-orange-400 transition"
                                 >
-                                    <User className="w-5 h-5 md:hidden" />
+                                    <User className="w-6 h-6 text-slate-800 md:text-white md:hidden" />
                                     <div className="hidden md:flex flex-col items-start translate-y-0.5">
                                         <span className="text-xs text-slate-300 leading-tight">Hello, {user.name ? user.name.split(' ')[0] : 'User'}</span>
                                         <span className="font-bold text-sm flex items-center leading-tight">
@@ -452,7 +452,7 @@ const Navbar = () => {
                                 </button>
                             ) : (
                                 <Link to="/login" className="flex items-center text-white hover:text-orange-400 transition">
-                                    <User className="w-5 h-5 md:hidden" />
+                                    <User className="w-6 h-6 text-slate-800 md:text-white md:hidden" />
                                     <div className="hidden md:flex flex-col items-start">
                                         <span className="text-xs text-slate-300">Hello, sign in</span>
                                         <span className="font-bold text-sm">Account & Lists</span>
@@ -629,7 +629,7 @@ const Navbar = () => {
                             transition={{ type: "spring", bounce: 0, duration: 0.4 }}
                             className="fixed top-0 left-0 h-[100dvh] w-[300px] sm:w-[350px] bg-white z-[100] shadow-2xl overflow-y-auto"
                         >
-                            <div className="bg-slate-900 text-white p-6 flex justify-between items-center sticky top-0 z-10 shadow-md">
+                            <div className="bg-slate-900 text-white p-6 flex justify-between items-center sticky top-0 z-10 shadow-md sidebar-header">
                                 <div className="flex items-center gap-3">
                                     <User className="w-8 h-8 p-1.5 bg-white/10 rounded-full" />
                                     <span className="font-bold text-lg">Hello, {user ? (user.name ? user.name.split(' ')[0] : 'User') : 'Sign in'}</span>
