@@ -3,6 +3,7 @@ services:
   - type: web
     name: quickcart-ai
     env: python
+    rootDir: ai_service
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     envVars:
@@ -13,8 +14,9 @@ services:
   - type: web
     name: quickcart-backend
     env: java
-    buildCommand: ./mvnw clean install -DskipTests
-    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    rootDir: backend
+    buildCommand: chmod +x mvnw && ./mvnw clean install -DskipTests
+    startCommand: java -jar target/*.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         sync: false
@@ -28,11 +30,11 @@ services:
           type: web
           property: host
 
-  # Frontend Service (Static Site)
-  - type: web
+  # Frontend Service (React/Vite)
+  - type: static_site
     name: quickcart-frontend
-    env: static
-    buildCommand: npm run build
+    rootDir: frontend
+    buildCommand: npm install && npm run build
     publishPath: dist
     envVars:
       - key: VITE_API_URL
