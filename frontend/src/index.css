@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-slate-50 text-slate-900;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 1.125rem;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+  }
+
+  .dark body {
+    @apply bg-slate-900 text-slate-50;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900;
+  }
+
+  .glass-card {
+    @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* Mobile-specific adjustments */
+  @media (max-width: 768px) {
+    .mobile-px {
+      @apply px-4;
+    }
+    .mobile-pt {
+      @apply pt-4;
+    }
+    .mobile-stack {
+      @apply flex-col;
+    }
+    .mobile-text-sm {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Glassmorphism Enhancements */
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+}
+
+.dark .glass-panel {
+  @apply bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-xl;
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.mobile-header-spacing {
+  @media (max-width: 768px) {
+    padding-top: calc(0.5rem + env(safe-area-inset-top));
+    height: auto !important;
+    min-height: 80px;
+  }
+}

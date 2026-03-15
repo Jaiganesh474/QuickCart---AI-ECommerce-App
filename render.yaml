@@ -1,0 +1,42 @@
+services:
+  # AI Service (Python/Flask)
+  - type: web
+    name: quickcart-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 5000
+
+  # Backend Service (Spring Boot)
+  - type: web
+    name: quickcart-backend
+    env: java
+    buildCommand: ./mvnw clean install -DskipTests
+    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: AI_SERVICE_URL
+        fromService:
+          name: quickcart-ai
+          type: web
+          property: host
+
+  # Frontend Service (Static Site)
+  - type: web
+    name: quickcart-frontend
+    env: static
+    buildCommand: npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: quickcart-backend
+          type: web
+          property: host
