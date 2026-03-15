@@ -6,6 +6,7 @@ services:
     rootDir: ai_service
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
+    plan: free
     envVars:
       - key: PORT
         value: 5000
@@ -15,6 +16,7 @@ services:
     name: quickcart-backend
     env: docker
     rootDir: backend
+    plan: free
     envVars:
       - key: SPRING_DATASOURCE_URL
         sync: false
@@ -35,6 +37,7 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    plan: free
     envVars:
       - key: VITE_API_URL
         fromService:
