@@ -31,11 +31,12 @@ services:
           property: host
 
   # Frontend Service (React/Vite)
-  - type: static_site
+  - type: web
     name: quickcart-frontend
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishPath: dist
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         fromService:
