@@ -80,16 +80,7 @@ const Register = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full">
-                {/* <div className="text-center mb-8">
-                    <Link to="/">
-                        <img 
-                            src="/logocroppedquick.png" 
-                            alt="QuickCart Logo" 
-                            className="h-12 w-auto mx-auto mb-4 object-contain"
-                        />
-                    </Link>
-                    <h2 className="mt-4 text-3xl font-extrabold text-slate-900">Create Account</h2>
-                </div> */}
+
 
                 <AnimatePresence mode="wait">
                     {step === 1 && (

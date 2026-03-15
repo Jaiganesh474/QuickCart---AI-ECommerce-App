@@ -79,9 +79,8 @@ const Navbar = () => {
             setRecentlyViewed(viewed);
             setSearchHistory(searches);
 
-            // Fetch ML recommendations
             if (viewed.length > 0 || searches.length > 0) {
-                fetch('http://localhost:5000/api/recommend', {
+                fetch('/api/recommend', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -205,9 +204,9 @@ const Navbar = () => {
                         </button>
                         <Link to="/" className="flex items-center ml-0 sm:ml-2">
                             <img
-                                src="/navbar_logo.png"
+                                src="/logocroppedquick.png"
                                 alt="QuickCart Logo"
-                                className="h-8 w-auto sm:h-10 object-contain transition-transform hover:scale-105"
+                                className="h-6 w-auto sm:h-10 object-contain transition-transform hover:scale-105"
                             />
                         </Link>
 
@@ -226,13 +225,13 @@ const Navbar = () => {
                         </button>
                     </div>
 
-                    <div className="flex-1 max-w-3xl px-1 sm:px-4 relative" ref={searchRef}>
+                    <div className="flex-1 max-w-3xl px-0.5 sm:px-4 relative" ref={searchRef}>
                         <form onSubmit={handleSearch} className="flex">
-                            <div className={`flex w-full rounded-md overflow-hidden bg-white ${showSearchDropdown ? 'ring-2 ring-orange-500 shadow-lg' : ''}`}>
+                            <div className={`flex w-full rounded-md overflow-hidden bg-white ${showSearchDropdown ? 'ring-1 ring-orange-500 shadow-lg' : ''}`}>
                                 <input
                                     type="text"
                                     placeholder="Search..."
-                                    className="w-full px-2 sm:px-4 text-[12px] sm:text-sm py-1.5 sm:py-2 text-slate-900 focus:outline-none"
+                                    className="w-full px-1.5 sm:px-4 text-[11px] sm:text-sm py-1 sm:py-2 text-slate-900 focus:outline-none"
                                     value={searchQuery}
                                     onFocus={() => setShowSearchDropdown(true)}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -241,19 +240,19 @@ const Navbar = () => {
                                         <button
                                             type="button"
                                             onClick={() => setSearchQuery('')}
-                                            className="px-1 sm:px-2 text-slate-400 hover:text-slate-600 bg-white"
+                                            className="px-1 text-slate-400 hover:text-slate-600 bg-white"
                                         >
-                                            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <X className="w-3.5 h-3.5" />
                                         </button>
                                     )}
                                     <button
                                         type="button"
                                         onClick={handleVoiceSearch}
-                                        className="px-2 sm:px-3 text-slate-500 hover:text-blue-500 bg-white border-l border-slate-100"
+                                        className="px-1.5 sm:px-3 text-slate-500 hover:text-blue-500 bg-white border-l border-slate-100"
                                     >
-                                        <Mic className={`w-4 h-4 sm:w-5 sm:h-5 ${isListening ? 'text-red-500 animate-pulse' : ''}`} />
+                                        <Mic className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${isListening ? 'text-red-500 animate-pulse' : ''}`} />
                                     </button>
-                                <button type="submit" className="px-2 sm:px-4 bg-orange-400 hover:bg-orange-500 transition-colors text-slate-900">
+                                <button type="submit" className="px-1.5 sm:px-4 bg-orange-400 hover:bg-orange-500 transition-colors text-slate-900">
                                     <Search className="w-4 h-4 sm:w-5 sm:h-5 font-bold" />
                                 </button>
                             </div>
@@ -433,106 +432,112 @@ const Navbar = () => {
                             <span className="font-bold ml-2 text-sm group-hover:text-orange-400">Cart</span>
                         </Link>
 
-                        {/* User Profile - Hidden on mobile, moved to BottomNavbar */}
-                        {user ? (
-                            <div className="hidden md:block relative" ref={dropdownRef}>
+                        {/* User Profile */}
+                        <div className="relative" ref={dropdownRef}>
+                            {user ? (
                                 <button
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="flex flex-col items-start text-white hover:text-orange-400 transition"
+                                    className="flex items-center gap-1 text-white hover:text-orange-400 transition"
                                 >
-                                    <span className="text-xs text-slate-300">Hello, {user.name ? user.name.split(' ')[0] : 'User'}</span>
-                                    <span className="font-bold text-sm flex items-center">
-                                        Account & Lists
-                                        <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </span>
+                                    <User className="w-5 h-5 md:hidden" />
+                                    <div className="hidden md:flex flex-col items-start translate-y-0.5">
+                                        <span className="text-xs text-slate-300 leading-tight">Hello, {user.name ? user.name.split(' ')[0] : 'User'}</span>
+                                        <span className="font-bold text-sm flex items-center leading-tight">
+                                            Account & Lists
+                                            <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </button>
-
-                                <AnimatePresence>
-                                    {dropdownOpen && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="absolute right-0 mt-4 w-56 bg-white dark:bg-slate-800 rounded-md shadow-xl py-1 z-50 border border-slate-200 dark:border-slate-700"
-                                        >
-                                            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{user.email}</p>
-                                            </div>
-                                            <Link to="/orders" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                <Package className="w-4 h-4 mr-2" />
-                                                Your Orders
+                            ) : (
+                                <Link to="/login" className="flex items-center text-white hover:text-orange-400 transition">
+                                    <User className="w-5 h-5 md:hidden" />
+                                    <div className="hidden md:flex flex-col items-start">
+                                        <span className="text-xs text-slate-300">Hello, sign in</span>
+                                        <span className="font-bold text-sm">Account & Lists</span>
+                                    </div>
+                                </Link>
+                            )}
+                            <AnimatePresence>
+                                {dropdownOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute right-0 mt-4 w-56 bg-white dark:bg-slate-800 rounded-md shadow-xl py-1 z-50 border border-slate-200 dark:border-slate-700"
+                                    >
+                                        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{user.email}</p>
+                                        </div>
+                                        {/* Dropdown items... same as before */}
+                                        <Link to="/orders" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                            <Package className="w-4 h-4 mr-2" />
+                                            Your Orders
+                                        </Link>
+                                        <Link to="/account" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                            <User className="w-4 h-4 mr-2" />
+                                            Your Account
+                                        </Link>
+                                        <Link to="/wishlist" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                            <Heart className="w-4 h-4 mr-2" />
+                                            Your Wishlist
+                                        </Link>
+                                        {user && user.role === 'ADMIN' && (
+                                            <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                                <Shield className="w-4 h-4 mr-2" />
+                                                Admin Dashboard
                                             </Link>
-                                            <Link to="/account" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                <User className="w-4 h-4 mr-2" />
-                                                Your Account
+                                        )}
+                                        {user && user.role === 'DELIVERY_AGENT' && (
+                                            <Link to="/delivery" className="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                                <Truck className="w-4 h-4 mr-2" />
+                                                Delivery Hub
                                             </Link>
-                                            <Link to="/wishlist" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                <Heart className="w-4 h-4 mr-2" />
-                                                Your Wishlist
-                                            </Link>
-                                            {user.role === 'ADMIN' && (
-                                                <Link to="/admin" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                        )}
+                                        {user && user.role === 'USER' && (
+                                            <>
+                                                <Link to="/become-seller" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
                                                     <Shield className="w-4 h-4 mr-2" />
-                                                    Admin Dashboard
+                                                    Become Seller
                                                 </Link>
-                                            )}
-                                            {user.role === 'DELIVERY_AGENT' && (
-                                                <Link to="/delivery" className="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                                <Link to="/become-agent" className="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
                                                     <Truck className="w-4 h-4 mr-2" />
-                                                    Delivery Hub
+                                                    Become Quicker Agent
                                                 </Link>
-                                            )}
-                                            {user.role === 'USER' && (
-                                                <>
-                                                    <Link to="/become-seller" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                        <Shield className="w-4 h-4 mr-2" />
-                                                        Become Seller
-                                                    </Link>
-                                                    <Link to="/become-agent" className="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                        <Truck className="w-4 h-4 mr-2" />
-                                                        Become Quicker Agent
-                                                    </Link>
-                                                </>
-                                            )}
-                                            <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
-                                                <Settings className="w-4 h-4 mr-2" />
-                                                Settings
-                                            </Link>
-                                             {user.role === 'DELIVERY_AGENT' && (
-                                                <button
-                                                    onClick={() => {
-                                                        setDropdownOpen(false);
-                                                        setShowSwitchConfirm(true);
-                                                    }}
-                                                    className="flex w-full items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                                                >
-                                                    <UserCircle className="w-4 h-4 mr-2" />
-                                                    Switch to Customer
-                                                </button>
-                                            )}
+                                            </>
+                                        )}
+                                        <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" onClick={() => setDropdownOpen(false)}>
+                                            <Settings className="w-4 h-4 mr-2" />
+                                            Settings
+                                        </Link>
+                                         {user && user.role === 'DELIVERY_AGENT' && (
                                             <button
                                                 onClick={() => {
                                                     setDropdownOpen(false);
-                                                    setShowLogoutConfirm(true);
+                                                    setShowSwitchConfirm(true);
                                                 }}
-                                                className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-slate-700"
+                                                className="flex w-full items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                             >
-                                                <LogOut className="w-4 h-4 mr-2" />
-                                                Logout
+                                                <UserCircle className="w-4 h-4 mr-2" />
+                                                Switch to Customer
                                             </button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        ) : (
-                            <Link to="/login" className="hidden md:flex flex-col items-start text-white hover:text-orange-400 transition">
-                                <span className="text-xs text-slate-300">Hello, sign in</span>
-                                <span className="font-bold text-sm">Account & Lists</span>
-                            </Link>
-                        )}
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                setDropdownOpen(false);
+                                                setShowLogoutConfirm(true);
+                                            }}
+                                            className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-slate-700"
+                                        >
+                                            <LogOut className="w-4 h-4 mr-2" />
+                                            Logout
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </div>
