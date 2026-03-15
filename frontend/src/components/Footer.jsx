@@ -7,7 +7,7 @@ const Footer = () => {
     };
 
     return (
-        <footer className="bg-[#232F3E] text-white mt-8 font-sans">
+        <footer className="bg-[#232F3E] text-white mt-8 font-sans hidden md:block">
             <button
                 onClick={scrollToTop}
                 className="w-full bg-[#37475A] hover:bg-[#485769] text-[15px] font-medium py-5 text-center transition-colors focus:outline-none"

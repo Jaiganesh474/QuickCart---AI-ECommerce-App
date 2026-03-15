@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
 import { setUser, logout } from './features/user/userSlice';
 
 // Components
@@ -62,9 +63,26 @@ const App = () => {
     }, [dispatch]);
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center bg-slate-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-        </div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white p-6">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="max-w-[300px] w-full flex flex-col items-center"
+                >
+                    <img 
+                        src="/splash_screen.png" 
+                        alt="QuickCart Loading" 
+                        className="w-full h-auto object-contain"
+                    />
+                    <div className="mt-8 flex space-x-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                </motion.div>
+            </div>
+        );
     }
 
     return (
