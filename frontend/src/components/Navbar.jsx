@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Mic, ShoppingCart, Bell, User, Settings, LogOut, Package, Shield, Menu, X, TrendingUp, Tags, ChevronRight, Heart, MapPin, Sparkles, History, Truck, UserCircle, ChevronDown } from 'lucide-react';
+import { Search, Mic, ShoppingCart, Bell, User, Settings, LogOut, Package, Shield, Menu, X, TrendingUp, Tags, ChevronRight, Heart, MapPin, Sparkles, History, Truck, UserCircle, ChevronDown, BadgeHelp } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAddresses } from '../features/address/addressSlice';
 import { logout, setUser } from '../features/user/userSlice';
@@ -13,7 +13,8 @@ const Navbar = () => {
     const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isListening, setIsListening] = useState(false);
-    const dropdownRef = useRef(null);
+    const desktopDropdownRef = useRef(null);
+    const mobileDropdownRef = useRef(null);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -35,7 +36,8 @@ const Navbar = () => {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target) &&
+                mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target)) {
                 setDropdownOpen(false);
             }
         };
@@ -256,7 +258,7 @@ const Navbar = () => {
             </Link>
 
             {/* User Profile */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={desktopDropdownRef}>
                 {user ? (
                     <button
                         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -297,7 +299,7 @@ const Navbar = () => {
                                     <Package className="w-4 h-4 mr-3 text-slate-400" /> Your Orders
                                 </Link>
                                 <Link to="/account" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
-                                    <UserCircle className="w-4 h-4 mr-3 text-slate-400" /> Your Profille
+                                    <UserCircle className="w-4 h-4 mr-3 text-slate-400" /> Your Profile
                                 </Link>
                                 <Link to="/wishlist" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                     <Heart className="w-4 h-4 mr-3 text-slate-400" /> Your Wishlist
@@ -405,7 +407,14 @@ const Navbar = () => {
                                     </span>
                                 )}
                             </button>
-                            <div className="relative" ref={dropdownRef}>
+                            <Link to="/cart" className="p-2 text-white relative">
+                                <ShoppingCart className="w-6 h-6" />
+                                <span className="absolute top-2 right-2 w-3.5 h-3.5 bg-orange-500 text-[9px] text-white font-bold rounded-full flex items-center justify-center">
+                                    {cartTotalQuantity}
+                                </span>
+                            </Link>
+
+                            <div className="relative" ref={mobileDropdownRef}>
                                 <button onClick={() => user ? setDropdownOpen(!dropdownOpen) : navigate('/login')} className="p-2 text-white">
                                     <User className="w-6 h-6" />
                                 </button>
@@ -427,7 +436,7 @@ const Navbar = () => {
                                                         <Package className="w-4 h-4 mr-3 text-slate-400" /> Your Orders
                                                     </Link>
                                                     <Link to="/account" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
-                                                        <UserCircle className="w-4 h-4 mr-3 text-slate-400" /> Your Profille
+                                                        <UserCircle className="w-4 h-4 mr-3 text-slate-400" /> Your Profile
                                                     </Link>
                                                     <Link to="/wishlist" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                                         <Heart className="w-4 h-4 mr-3 text-slate-400" /> Your Wishlist
