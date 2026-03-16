@@ -266,10 +266,12 @@ const Home = () => {
                         ) : displayProducts.length > 0 ? (
                             <>
                                 {(!searchQuery && !filterCategory) ? (
-                                    categories.map(cat => {
-                                        const catProducts = products.filter(p => p.category?.id === cat.id);
-                                        return <CategorySlider key={cat.id} category={cat} products={catProducts} />;
-                                    })
+                                    <div className="hidden md:block">
+                                        {categories.map(cat => {
+                                            const catProducts = products.filter(p => p.category?.id === cat.id);
+                                            return <CategorySlider key={cat.id} category={cat} products={catProducts} />;
+                                        })}
+                                    </div>
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                         {displayProducts.map(product => (

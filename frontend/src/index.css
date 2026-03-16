@@ -44,6 +44,15 @@
       font-size: 16px; /* Increased for better readability */
     }
 
+    /* Hide scrollbars globally on mobile */
+    *::-webkit-scrollbar {
+      display: none !important;
+    }
+    * {
+      -ms-overflow-style: none !important;
+      scrollbar-width: none !important;
+    }
+
     .mobile-px {
       @apply px-4;
     }

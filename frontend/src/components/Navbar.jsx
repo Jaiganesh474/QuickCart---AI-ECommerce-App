@@ -287,7 +287,7 @@ const Navbar = () => {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute right-0 mt-4 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-800"
+                            className="absolute right-0 md:right-0 mt-4 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-800"
                         >
                             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                                 <p className="text-sm font-bold truncate">{user?.email}</p>
@@ -394,9 +394,55 @@ const Navbar = () => {
                                     </span>
                                 )}
                             </button>
-                            <button onClick={() => user ? setIsSidebarOpen(true) : navigate('/login')} className="p-2 text-white">
-                                <User className="w-6 h-6" />
-                            </button>
+                            <div className="relative" ref={dropdownRef}>
+                                <button onClick={() => user ? setDropdownOpen(!dropdownOpen) : navigate('/login')} className="p-2 text-white">
+                                    <User className="w-6 h-6" />
+                                </button>
+                                
+                                {dropdownOpen && (
+                                    <div className="md:hidden">
+                                        <AnimatePresence>
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-[100] border border-slate-200 overflow-hidden text-slate-800"
+                                            >
+                                                <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                                                    <p className="text-sm font-bold truncate">{user?.email}</p>
+                                                </div>
+                                                <div className="py-1">
+                                                    <Link to="/orders" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
+                                                        <Package className="w-4 h-4 mr-3 text-slate-400" /> Your Orders
+                                                    </Link>
+                                                    <Link to="/account" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
+                                                        <UserCircle className="w-4 h-4 mr-3 text-slate-400" /> Your Profille
+                                                    </Link>
+                                                    <Link to="/wishlist" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
+                                                        <Heart className="w-4 h-4 mr-3 text-slate-400" /> Your Wishlist
+                                                    </Link>
+                                                    <Link to="/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                                        <Settings className="w-4 h-4 mr-3 text-slate-400" /> Settings
+                                                    </Link>
+
+                                                    {user?.role === 'ADMIN' && (
+                                                        <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors">
+                                                            <Shield className="w-4 h-4 mr-3" /> Admin Panel
+                                                        </Link>
+                                                    )}
+
+                                                    <button
+                                                        onClick={() => { setShowLogoutConfirm(true); setDropdownOpen(false); }}
+                                                        className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 font-bold hover:bg-red-50 transition-colors text-left"
+                                                    >
+                                                        <LogOut className="w-4 h-4 mr-3" /> Sign Out
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -480,7 +526,16 @@ const Navbar = () => {
                                 </div>
                                 <button onClick={() => setIsSidebarOpen(false)}><X className="w-6 h-6" /></button>
                             </div>
-                            <div className="p-4 space-y-6">
+                             <div className="p-4 space-y-6">
+                                <div className="border-b pb-4">
+                                    <h4 className="font-black text-[11px] text-slate-400 uppercase tracking-widest mb-3">Highlights</h4>
+                                    <button onClick={() => { navigate('/search?q=trending'); setIsSidebarOpen(false); }} className="w-full text-left py-2.5 px-3 rounded-lg text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-500 transition-all flex items-center gap-3">
+                                        <TrendingUp className="w-5 h-5 text-orange-500" /> Trending Deals
+                                    </button>
+                                    <button onClick={() => { navigate('/search?q=best%20sellers'); setIsSidebarOpen(false); }} className="w-full text-left py-2.5 px-3 rounded-lg text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-500 transition-all flex items-center gap-3">
+                                        <Sparkles className="w-5 h-5 text-orange-500" /> Bestsellers
+                                    </button>
+                                </div>
                                 <div className="border-b pb-4">
                                     <h4 className="font-black text-[11px] text-slate-400 uppercase tracking-widest mb-3">Shop By Category</h4>
                                     {categories.map(cat => (
@@ -489,7 +544,6 @@ const Navbar = () => {
                                         </button>
                                     ))}
                                 </div>
-                                <button onClick={() => { handleLogout(); setIsSidebarOpen(false); }} className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold text-sm">Sign Out</button>
                             </div>
                         </motion.div>
                     </>
