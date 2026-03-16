@@ -136,25 +136,25 @@ const Home = () => {
                 <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#e3e6e6] to-transparent z-10 pointer-events-none"></div>
             </div>
 
-            <div className="max-w-[1500px] mx-auto px-2 md:px-8 relative z-20 -mt-10 md:-mt-20 pb-16">
+            <div className="max-w-[1500px] mx-auto px-2 md:px-8 relative z-20 -mt-32 md:-mt-52 pb-16">
                 
                 {/* Category Quick Links - Amazon Style Icon Row */}
-                <div className="bg-white p-3 mb-6 shadow-sm border border-slate-200 overflow-x-auto hide-scrollbar whitespace-nowrap">
-                    <div className="flex items-start gap-6 md:gap-12 px-2">
+                <div className="bg-white p-4 mb-8 shadow-xl border border-slate-100 rounded-3xl md:rounded-[2.5rem] overflow-x-auto hide-scrollbar whitespace-nowrap">
+                    <div className="flex items-start gap-8 md:gap-14 px-4 py-1">
                         {categories.map((cat) => (
                             <button 
                                 key={cat.id} 
                                 onClick={() => navigate(`/category/${cat.id}`)}
                                 className="flex flex-col items-center gap-1 group shrink-0"
                             >
-                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:border-orange-400 group-hover:bg-orange-50 transition-all shadow-sm overflow-hidden">
+                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:border-orange-400 group-hover:bg-orange-50 transition-all shadow-sm overflow-hidden">
                                      <img 
                                         src={cat.imageUrl || `https://api.dicebear.com/7.x/shapes/svg?seed=${cat.name}`} 
                                         alt={cat.name} 
-                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                                     />
                                 </div>
-                                <span className="text-[10px] md:text-sm font-bold text-slate-700 group-hover:text-orange-600 transition-colors">{cat.name}</span>
+                                <span className="text-[11px] md:text-sm font-bold text-slate-700 group-hover:text-orange-600 transition-colors">{cat.name}</span>
                             </button>
                         ))}
                     </div>
@@ -162,17 +162,17 @@ const Home = () => {
 
                 {/* Today's Deals Slider */}
                 {dailyOffers.length > 0 && !searchQuery && !filterCategory && (
-                    <div className="mb-8 bg-white p-4 md:p-6 shadow-sm border border-slate-200 relative z-20 group">
+                    <div className="mb-8 bg-white p-4 md:p-6 shadow-xl border border-slate-100 rounded-3xl md:rounded-[2.5rem] relative z-20 group">
                         <div className="flex items-center justify-start gap-4 mb-4">
                             <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Today's Deals</h2>
                             <span className="text-sm font-semibold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">See all deals</span>
                         </div>
 
-                        <button onClick={() => scrollSlider(dailyOffersRef, 'left')} className="absolute left-2 top-[55%] -translate-y-1/2 z-30 bg-white/90 shadow-lg border border-slate-200 text-slate-800 p-2 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover:opacity-100 disabled:opacity-0 active:scale-95">
-                            <ChevronLeft className="w-5 h-5" />
+                        <button onClick={() => scrollSlider(dailyOffersRef, 'left')} className="absolute left-3 top-[55%] -translate-y-1/2 z-30 bg-white/95 shadow-lg border border-slate-100 text-slate-800 p-2.5 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover:opacity-100 disabled:opacity-0 active:scale-95">
+                            <ChevronLeft className="w-6 h-6" />
                         </button>
-                        <button onClick={() => scrollSlider(dailyOffersRef, 'right')} className="absolute right-2 top-[55%] -translate-y-1/2 z-30 bg-white/90 shadow-lg border border-slate-200 text-slate-800 p-2 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover:opacity-100 disabled:opacity-0 active:scale-95">
-                            <ChevronRight className="w-5 h-5" />
+                        <button onClick={() => scrollSlider(dailyOffersRef, 'right')} className="absolute right-3 top-[55%] -translate-y-1/2 z-30 bg-white/95 shadow-lg border border-slate-100 text-slate-800 p-2.5 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover:opacity-100 disabled:opacity-0 active:scale-95">
+                            <ChevronRight className="w-6 h-6" />
                         </button>
 
                         <div ref={dailyOffersRef} className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar scroll-smooth">

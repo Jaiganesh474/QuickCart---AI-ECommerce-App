@@ -139,11 +139,11 @@ const CategorySlider = ({ category, products }) => {
             </div>
 
             <div className="relative group/slider w-full px-2">
-                <button onClick={() => scrollSlider('left')} className="absolute left-2 top-[45%] -translate-y-1/2 z-30 bg-white/90 shadow-md border border-slate-200 text-slate-800 p-2 rounded flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover/slider:opacity-100 disabled:opacity-0 active:scale-95">
-                    <ChevronLeft className="w-6 h-6" />
+                <button onClick={() => scrollSlider('left')} className="absolute left-1 top-[45%] -translate-y-1/2 z-30 bg-white/95 shadow-lg border border-slate-100 text-slate-800 p-2.5 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover/slider:opacity-100 disabled:opacity-0 active:scale-90">
+                    <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button onClick={() => scrollSlider('right')} className="absolute right-2 top-[45%] -translate-y-1/2 z-30 bg-white/90 shadow-md border border-slate-200 text-slate-800 p-2 rounded flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover/slider:opacity-100 disabled:opacity-0 active:scale-95">
-                    <ChevronRight className="w-6 h-6" />
+                <button onClick={() => scrollSlider('right')} className="absolute right-1 top-[45%] -translate-y-1/2 z-30 bg-white/95 shadow-lg border border-slate-100 text-slate-800 p-2.5 rounded-full flex items-center justify-center hover:bg-slate-50 transition opacity-0 group-hover/slider:opacity-100 disabled:opacity-0 active:scale-90">
+                    <ChevronRight className="w-5 h-5" />
                 </button>
                 <div ref={sliderRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-6 pt-2 snap-x hide-scrollbar scroll-smooth w-full">
                     {products.map(product => <ProductCard key={product.id} product={product} className="w-[260px] md:w-[280px] shrink-0 hover:text-[#C7511F] snap-start" />)}
