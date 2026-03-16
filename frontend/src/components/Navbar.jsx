@@ -216,7 +216,7 @@ const Navbar = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
-                            className="absolute right-0 mt-4 w-80 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-900"
+                            className="absolute right-0 mt-4 w-80 bg-white rounded-lg shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-900"
                         >
                             <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                 <h3 className="font-bold">Notifications</h3>
@@ -289,7 +289,7 @@ const Navbar = () => {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute right-0 md:right-0 mt-4 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-800"
+                            className="absolute right-0 md:right-0 mt-4 w-56 bg-white rounded-lg shadow-2xl py-2 z-50 border border-slate-200 overflow-hidden text-slate-800"
                         >
                             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                                 <p className="text-sm font-bold truncate">{user?.email}</p>
@@ -432,7 +432,7 @@ const Navbar = () => {
                                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-[200] border border-slate-200 overflow-hidden text-slate-800"
+                                                className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-2xl py-2 z-[200] border border-slate-200 overflow-hidden text-slate-800"
                                             >
                                                 <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                                                     <p className="text-sm font-bold truncate">{user?.email}</p>

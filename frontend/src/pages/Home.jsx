@@ -139,7 +139,7 @@ const Home = () => {
             <div className="max-w-[1500px] mx-auto px-2 md:px-8 relative z-20 -mt-32 md:-mt-52 pb-16">
                 
                 {/* Category Quick Links - Amazon Style Icon Row */}
-                <div className="bg-white p-4 mb-8 shadow-xl border border-slate-100 rounded-3xl md:rounded-[2.5rem] overflow-x-auto hide-scrollbar whitespace-nowrap">
+                <div className="bg-white p-4 mb-8 shadow-xl border border-slate-100 rounded-xl md:rounded-2xl overflow-x-auto hide-scrollbar whitespace-nowrap">
                     <div className="flex items-start gap-8 md:gap-14 px-4 py-1">
                         {categories.map((cat) => (
                             <button 
@@ -147,7 +147,7 @@ const Home = () => {
                                 onClick={() => navigate(`/category/${cat.id}`)}
                                 className="flex flex-col items-center gap-1 group shrink-0"
                             >
-                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:border-orange-400 group-hover:bg-orange-50 transition-all shadow-sm overflow-hidden">
+                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:border-orange-400 group-hover:bg-orange-50 transition-all shadow-sm overflow-hidden">
                                      <img 
                                         src={cat.imageUrl || `https://api.dicebear.com/7.x/shapes/svg?seed=${cat.name}`} 
                                         alt={cat.name} 
@@ -162,7 +162,7 @@ const Home = () => {
 
                 {/* Today's Deals Slider */}
                 {dailyOffers.length > 0 && !searchQuery && !filterCategory && (
-                    <div className="mb-8 bg-white p-4 md:p-6 shadow-xl border border-slate-100 rounded-3xl md:rounded-[2.5rem] relative z-20 group">
+                    <div className="mb-8 bg-white p-4 md:p-6 shadow-xl border border-slate-100 rounded-xl md:rounded-2xl relative z-20 group">
                         <div className="flex items-center justify-start gap-4 mb-4">
                             <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Today's Deals</h2>
                             <span className="text-sm font-semibold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">See all deals</span>

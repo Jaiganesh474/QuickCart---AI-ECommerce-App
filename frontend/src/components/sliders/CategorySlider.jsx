@@ -56,9 +56,9 @@ const ProductCard = ({ product, className = "" }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
             onClick={() => navigate(`/product/${product.id}`)}
-            className={`bg-white group/card cursor-pointer flex flex-col transition-all duration-300 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl p-3 h-full ${className}`}
+            className={`bg-white group/card cursor-pointer flex flex-col transition-all duration-300 border border-slate-100 rounded-xl shadow-sm hover:shadow-xl p-3 h-full ${className}`}
         >
-            <div className="h-48 md:h-56 relative bg-white flex items-center justify-center p-2 mb-2 rounded-xl overflow-hidden">
+            <div className="h-48 md:h-56 relative bg-white flex items-center justify-center p-2 mb-2 rounded-lg overflow-hidden">
                 <img
                     src={product.imageUrl || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=300'}
                     alt={product.name}
@@ -103,7 +103,7 @@ const ProductCard = ({ product, className = "" }) => {
                             ) : (
                                 <button
                                     onClick={handleAddToCart}
-                                    className="w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-orange-100 transition-all active:scale-95"
+                                    className="w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center justify-center shadow-lg shadow-orange-100 transition-all active:scale-95"
                                 >
                                     <Plus size={18} />
                                 </button>
