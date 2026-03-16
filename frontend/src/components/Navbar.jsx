@@ -319,6 +319,12 @@ const Navbar = () => {
                                     </>
                                 )}
 
+                                {user?.role === 'DELIVERY_AGENT' && (
+                                    <Link to="/delivery-dashboard" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-green-600 hover:bg-green-50 transition-colors border-b border-slate-50">
+                                        <Truck className="w-4 h-4 mr-3" /> Delivery Hub
+                                    </Link>
+                                )}
+
                                 {user?.role === 'ADMIN' && (
                                     <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors border-b border-slate-50">
                                         <Shield className="w-4 h-4 mr-3" /> Admin Panel
@@ -454,6 +460,12 @@ const Navbar = () => {
                                                                 <BadgeHelp className="w-4 h-4 mr-3" /> Become an Agent
                                                             </Link>
                                                         </>
+                                                    )}
+
+                                                    {user?.role === 'DELIVERY_AGENT' && (
+                                                        <Link to="/delivery-dashboard" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-green-600 hover:bg-green-50 transition-colors border-b border-slate-50">
+                                                            <Truck className="w-4 h-4 mr-3" /> Delivery Hub
+                                                        </Link>
                                                     )}
 
                                                     {user?.role === 'ADMIN' && (
