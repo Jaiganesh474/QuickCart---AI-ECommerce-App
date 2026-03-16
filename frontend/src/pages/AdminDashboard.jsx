@@ -611,7 +611,7 @@ const AdminDashboard = () => {
             {/* Sidebar */}
             <div className={`
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                fixed md:static inset-y-0 left-0 z-[60] w-[280px] md:w-64 bg-white border-r border-slate-200 p-4 transform transition-transform duration-300 ease-out md:min-h-screen overflow-y-auto shadow-2xl md:shadow-none
+                fixed md:static top-[56px] md:top-0 bottom-0 left-0 z-[60] w-[280px] md:w-64 bg-white border-r border-slate-200 p-4 transform transition-transform duration-300 ease-out md:min-h-screen overflow-y-auto shadow-2xl md:shadow-none
             `}>
                 <div className="hidden md:flex items-center space-x-2 px-2 mb-8 mt-2">
                     <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
