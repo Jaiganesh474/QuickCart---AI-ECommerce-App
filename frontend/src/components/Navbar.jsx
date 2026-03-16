@@ -302,12 +302,23 @@ const Navbar = () => {
                                 <Link to="/wishlist" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                     <Heart className="w-4 h-4 mr-3 text-slate-400" /> Your Wishlist
                                 </Link>
-                                <Link to="/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                <Link to="/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                     <Settings className="w-4 h-4 mr-3 text-slate-400" /> Settings
                                 </Link>
 
+                                {user?.role === 'USER' && (
+                                    <>
+                                        <Link to="/become-seller" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-orange-600 hover:bg-orange-50 transition-colors">
+                                            <Truck className="w-4 h-4 mr-3" /> Become a Seller
+                                        </Link>
+                                        <Link to="/become-agent" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors border-b border-slate-50">
+                                            <BadgeHelp className="w-4 h-4 mr-3" /> Become an Agent
+                                        </Link>
+                                    </>
+                                )}
+
                                 {user?.role === 'ADMIN' && (
-                                    <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors">
+                                    <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors border-b border-slate-50">
                                         <Shield className="w-4 h-4 mr-3" /> Admin Panel
                                     </Link>
                                 )}
@@ -406,7 +417,7 @@ const Navbar = () => {
                                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-[100] border border-slate-200 overflow-hidden text-slate-800"
+                                                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-[200] border border-slate-200 overflow-hidden text-slate-800"
                                             >
                                                 <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                                                     <p className="text-sm font-bold truncate">{user?.email}</p>
@@ -421,12 +432,23 @@ const Navbar = () => {
                                                     <Link to="/wishlist" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                                         <Heart className="w-4 h-4 mr-3 text-slate-400" /> Your Wishlist
                                                     </Link>
-                                                    <Link to="/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                                    <Link to="/settings" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors">
                                                         <Settings className="w-4 h-4 mr-3 text-slate-400" /> Settings
                                                     </Link>
 
+                                                    {user?.role === 'USER' && (
+                                                        <>
+                                                            <Link to="/become-seller" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-orange-600 hover:bg-orange-50 transition-colors">
+                                                                <Truck className="w-4 h-4 mr-3" /> Become a Seller
+                                                            </Link>
+                                                            <Link to="/become-agent" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors border-b border-slate-50">
+                                                                <BadgeHelp className="w-4 h-4 mr-3" /> Become an Agent
+                                                            </Link>
+                                                        </>
+                                                    )}
+
                                                     {user?.role === 'ADMIN' && (
-                                                        <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors">
+                                                        <Link to="/admin" onClick={() => setDropdownOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors border-b border-slate-50">
                                                             <Shield className="w-4 h-4 mr-3" /> Admin Panel
                                                         </Link>
                                                     )}
