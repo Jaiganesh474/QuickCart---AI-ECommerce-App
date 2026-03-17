@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import '../../models/order.dart';
+import 'orders_screen.dart';
+import 'wishlist_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,14 +42,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               _buildHeader(user),
               const SizedBox(height: 24),
-              const Text('My Orders', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              if (auth.orders.isEmpty)
-                _buildEmptyOrders()
-              else
-                ...auth.orders.map((order) => _buildOrderCard(order)),
+              _buildAccountOption(context, Icons.inventory_2_outlined, 'My Orders', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen()));
+              }),
+              _buildAccountOption(context, Icons.favorite_border, 'My Wishlist', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()));
+              }),
+              _buildAccountOption(context, Icons.location_on_outlined, 'Shipping Addresses', () {}),
+              _buildAccountOption(context, Icons.payment_outlined, 'Payment Methods', () {}),
+              _buildAccountOption(context, Icons.settings_outlined, 'Settings', () {}),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => auth.logout(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[50],
+                  foregroundColor: Colors.red,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
             ],
           ),
+    );
+  }
+
+  Widget _buildAccountOption(BuildContext context, IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, color: AppColors.slate600),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.slate300),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 0),
     );
   }
 

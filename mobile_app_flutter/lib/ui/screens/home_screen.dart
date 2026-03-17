@@ -17,6 +17,9 @@ import 'category_products_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
 import 'notification_screen.dart';
+import 'categories_screen.dart';
+import 'orders_screen.dart';
+import 'wishlist_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,9 +46,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final cart = Provider.of<CartProvider>(context);
     final auth = Provider.of<AuthProvider>(context);
     
+    final List<Widget> _pages = [
+      _buildHomeContent(productProvider, cart, auth),
+      const CategoriesScreen(),
+      const CartScreen(),
+      const OrdersScreen(showAppBar: true),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       key: _scaffoldKey,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _selectedIndex == 0 ? FloatingActionButton(
         onPressed: () {},
         backgroundColor: const Color(0xFF6366F1),
         shape: const CircleBorder(),
@@ -53,10 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Colors.red,
           child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
         ),
-      ),
+      ) : null,
       drawer: _buildSidebar(),
-      bottomNavigationBar: BottomNavigationBar( // Added this block
-        currentIndex: _selectedIndex,
+      bottomNavigationBar: BottomNavigationBar( 
+        currentIndex: _selectedIndex >= 5 ? 0 : _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.orange,
@@ -78,7 +89,15 @@ class _HomeScreenState extends State<HomeScreen> {
           const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Account'),
         ],
       ),
-      body: RefreshIndicator(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+    );
+  }
+
+  Widget _buildHomeContent(ProductProvider productProvider, CartProvider cart, AuthProvider auth) {
+    return RefreshIndicator(
         onRefresh: () => productProvider.fetchHomeData(),
         child: productProvider.isLoading 
           ? const Center(child: CircularProgressIndicator(color: Colors.orange))
@@ -141,8 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SliverToBoxAdapter(child: SizedBox(height: 50)),
             ],
           ),
-      )
-    );
+      );
   }
 
   Widget _buildAppBar() {
@@ -194,8 +212,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   offset: const Offset(0, 50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   onSelected: (val) {
-                    if (val == 'account' || val == 'orders') {
+                    if (val == 'account') {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                    } else if (val == 'orders') {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen()));
+                    } else if (val == 'wishlist') {
+                       Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()));
                     } else if (val == 'logout') {
                       auth.logout();
                     } else if (val == 'seller') {

@@ -4,15 +4,23 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../models/product.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import 'cart_screen.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   final Product product;
   const ProductDetailsScreen({super.key, required this.product});
 
   @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    final isFav = auth.wishlist.any((p) => p.id == widget.product.id);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -21,7 +29,10 @@ class ProductDetailsScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
+          IconButton(
+            icon: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : null), 
+            onPressed: () => auth.toggleWishlist(widget.product)
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -32,9 +43,9 @@ class ProductDetailsScreen extends StatelessWidget {
               height: 350,
               width: double.infinity,
               color: const Color(0xFFF8FAFC),
-              child: product.imageUrl != null 
+              child: widget.product.imageUrl != null 
                 ? CachedNetworkImage(
-                    imageUrl: product.imageUrl!,
+                    imageUrl: widget.product.imageUrl!,
                     fit: BoxFit.contain,
                     placeholder: (context, url) => Shimmer.fromColors(
                       baseColor: AppColors.slate50,
@@ -50,23 +61,23 @@ class ProductDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (product.brand != null)
-                    Text(product.brand!.toUpperCase(), 
+                  if (widget.product.brand != null)
+                    Text(widget.product.brand!.toUpperCase(), 
                       style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.2)),
                   const SizedBox(height: 8),
-                  Text(product.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.3)),
+                  Text(widget.product.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.3)),
                   const SizedBox(height: 16),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       const Text('₹', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text(product.effectivePrice.toInt().toString(), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                      if (product.offerPercentage > 0) ...[
+                      Text(widget.product.effectivePrice.toInt().toString(), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      if (widget.product.offerPercentage > 0) ...[
                         const SizedBox(width: 12),
-                        Text('₹${product.price.toInt()}', style: TextStyle(decoration: TextDecoration.lineThrough, color: AppColors.slate, fontSize: 16)),
+                        Text('₹${widget.product.price.toInt()}', style: TextStyle(decoration: TextDecoration.lineThrough, color: AppColors.slate, fontSize: 16)),
                         const SizedBox(width: 8),
-                        Text('${product.offerPercentage.toInt()}% OFF', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text('${widget.product.offerPercentage.toInt()}% OFF', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
                     ],
                   ),
@@ -75,7 +86,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   const Text('Product Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
-                  Text(product.description, style: const TextStyle(fontSize: 15, color: Color(0xFF475569), height: 1.6)),
+                  Text(widget.product.description, style: const TextStyle(fontSize: 15, color: Color(0xFF475569), height: 1.6)),
                   const SizedBox(height: 100), // Space for bottom buttons
                 ],
               ),
@@ -96,10 +107,10 @@ class ProductDetailsScreen extends StatelessWidget {
                 height: 50,
                 child: OutlinedButton(
                   onPressed: () {
-                    Provider.of<CartProvider>(context, listen: false).addToCart(product);
+                    Provider.of<CartProvider>(context, listen: false).addToCart(widget.product);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text("${product.name} added to cart"),
+                        content: Text("${widget.product.name} added to cart"),
                         action: SnackBarAction(label: 'View Cart', onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
                         }),
@@ -120,7 +131,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    Provider.of<CartProvider>(context, listen: false).addToCart(product);
+                    Provider.of<CartProvider>(context, listen: false).addToCart(widget.product);
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
                   },
                   style: ElevatedButton.styleFrom(

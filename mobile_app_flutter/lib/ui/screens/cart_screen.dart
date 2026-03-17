@@ -4,6 +4,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import 'order_success_screen.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -157,23 +158,13 @@ class CartScreen extends StatelessWidget {
             width: double.infinity,
             height: 54,
             child: ElevatedButton(
-              onPressed: cart.isLoading ? null : () async {
+              onPressed: () {
                 final auth = Provider.of<AuthProvider>(context, listen: false);
                 if (auth.user == null) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please login to checkout')));
                   return;
                 }
-                
-                final success = await cart.checkout();
-                if (success) {
-                  if (context.mounted) {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OrderSuccessScreen()));
-                  }
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to place order')));
-                  }
-                }
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF97316),
