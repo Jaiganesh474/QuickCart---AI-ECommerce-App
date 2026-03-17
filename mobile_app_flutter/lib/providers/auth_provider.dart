@@ -57,14 +57,17 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password, {String? role}) async {
     _loading = true;
     notifyListeners();
     try {
-      final response = await _apiClient.dio.post('/api/auth/login', data: {
+      final data = {
         'email': email,
         'password': password,
-      });
+      };
+      if (role != null) data['role'] = role;
+
+      final response = await _apiClient.dio.post('/api/auth/login', data: data);
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
@@ -83,7 +86,7 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String name, String email, String password) async {
+  Future<bool> register(String name, String email, String password, {String? mobileNumber, String? role}) async {
     _loading = true;
     notifyListeners();
     try {
@@ -91,6 +94,8 @@ class AuthProvider with ChangeNotifier {
         'name': name,
         'email': email,
         'password': password,
+        if (mobileNumber != null) 'mobileNumber': mobileNumber,
+        if (role != null) 'role': role,
       });
 
       if (response.statusCode == 201 || response.statusCode == 200) {

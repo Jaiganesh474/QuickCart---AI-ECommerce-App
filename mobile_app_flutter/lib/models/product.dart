@@ -31,12 +31,18 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    String? img = json['imageUrl'];
+    String? img;
+    if (json['imageUrl'] != null) {
+      img = json['imageUrl'];
+    } else if (json['image'] != null) {
+      img = json['image'] is String ? json['image'] : json['image']['url'];
+    }
+
     if (img != null && !img.startsWith('http')) {
       img = '${ApiClient.baseUrl}$img';
     }
     return Product(
-      id: json['id']?.toString() ?? '',
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,

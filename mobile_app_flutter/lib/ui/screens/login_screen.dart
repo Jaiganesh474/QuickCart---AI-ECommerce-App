@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -16,7 +17,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _selectedRole = 'USER';
   bool _obscureText = true;
+
+  final List<Map<String, String>> _roles = [
+    {'label': 'Member / Customer', 'value': 'USER'},
+    {'label': 'Administrator', 'value': 'ADMIN'},
+    {'label': 'Delivery Agent', 'value': 'DELIVERY_AGENT'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 40),
               Center(
-                child: Image.network(
-                  'https://quickcart-backend-8x2e.onrender.com/logocroppedquick-bg.png',
+                child: CachedNetworkImage(
+                  imageUrl: 'https://quickcart-backend-8x2e.onrender.com/logocroppedquick-bg.png',
                   height: 60,
+                  placeholder: (c, u) => const SizedBox(height: 60, width: 200, child: Center(child: CircularProgressIndicator())),
                 ),
               ),
               const SizedBox(height: 48),
@@ -47,12 +56,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(fontSize: 16, color: AppColors.slate500),
               ),
               const SizedBox(height: 32),
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                decoration: InputDecoration(
+                  labelText: 'Select Login Role',
+                  prefixIcon: const Icon(Icons.people_outline),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                ),
+                items: _roles.map((role) {
+                  return DropdownMenuItem(
+                    value: role['value'],
+                    child: Text(role['label']!),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedRole = val);
+                },
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email Address',
                   prefixIcon: const Icon(Icons.email_outlined),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -67,6 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () => setState(() => _obscureText = !_obscureText),
                   ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -80,17 +120,22 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 55,
                 child: ElevatedButton(
                   onPressed: authProvider.loading ? null : () async {
+                    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter all details')));
+                      return;
+                    }
                     final success = await authProvider.login(
                       _emailController.text, 
-                      _passwordController.text
+                      _passwordController.text,
+                      role: _selectedRole,
                     );
                     if (success) {
                       if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
                     } else {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Failed')));
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Failed: Please check your credentials and role')));
                     }
                   },
                   style: ElevatedButton.styleFrom(

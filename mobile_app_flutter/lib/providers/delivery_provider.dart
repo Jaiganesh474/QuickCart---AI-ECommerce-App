@@ -29,7 +29,7 @@ class DeliveryProvider with ChangeNotifier {
   DeliveryOrder? get activeOrder => _activeOrder;
   bool get isLoading => _isLoading;
 
-  Future<void> fetchDeliveryData() async {
+  Future<bool> fetchDeliveryData() async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -45,20 +45,44 @@ class DeliveryProvider with ChangeNotifier {
       } else {
         _activeOrder = null;
       }
+      return true;
     } catch (e) {
       print("Delivery fetch error: $e");
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> updateOrderStatus(String orderId, String status) async {
+  Future<bool> acceptTask(String orderId) async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      await _apiClient.dio.put('/api/orders/$orderId/status', data: {'status': status});
-      fetchDeliveryData();
+      final response = await _apiClient.dio.post('/api/delivery/tasks/$orderId/accept');
+      if (response.statusCode == 200) {
+        await fetchDeliveryData();
+        return true;
+      }
+    } catch (e) {
+      print("Accept task error: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
+  Future<bool> updateOrderStatus(String orderId, String status) async {
+    try {
+      final response = await _apiClient.dio.put('/api/orders/$orderId/status', data: {'status': status});
+      if (response.statusCode == 200) {
+        await fetchDeliveryData();
+        return true;
+      }
     } catch (e) {
       print("Status update error: $e");
     }
+    return false;
   }
 }

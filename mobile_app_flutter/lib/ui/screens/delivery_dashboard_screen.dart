@@ -27,7 +27,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delivery Hub', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF007185),
+        backgroundColor: const Color(0xFF1E293B),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh), 
@@ -37,7 +37,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () => delivery.fetchDeliveryData(),
-        child: delivery.isLoading 
+        child: delivery.isLoading && delivery.availableTasks.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -45,23 +45,23 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildAgentStatus(),
+                  _buildEarningsCard(1240.0), // Placeholder value
                   const SizedBox(height: 24),
-                  Text('Active Orders (${delivery.activeOrder != null ? 1 : 0})', 
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Active Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   if (delivery.activeOrder != null) 
-                    _buildDeliveryCard(delivery.activeOrder!, delivery)
+                    _buildOrderCard(delivery, {
+                      'id': delivery.activeOrder!.id,
+                      'totalAmount': 129.0, // Placeholder
+                      'shippingAddress': delivery.activeOrder!.address,
+                    })
                   else
-                    const Center(child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Text('No active order. Pick one from the list!', style: TextStyle(color: AppColors.slate)),
-                    )),
+                    _buildEmptyState('No active order. Pick one from the list!'),
                   const SizedBox(height: 32),
                   Text('Available Tasks (${delivery.availableTasks.length})', 
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
-                  _buildTaskList(delivery.availableTasks),
+                  _buildTaskList(delivery, delivery.availableTasks),
                 ],
               ),
             ),
@@ -69,36 +69,51 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     );
   }
 
-  Widget _buildAgentStatus() {
+  Widget _buildEmptyState(String message) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF007185), Color(0xFF004D5A)]),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.slate100),
       ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Center(child: Text(message, style: const TextStyle(color: AppColors.slate))),
+    );
+  }
+
+  Widget _buildEarningsCard(double earnings) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
+      ),
+      child: Column(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Earnings Today', style: TextStyle(color: Colors.white70, fontSize: 13)),
-              Text('₹ 1,240', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Completed', style: TextStyle(color: Colors.white70, fontSize: 13)),
-              Text('8', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-            ],
+          const Text('Today\'s Earnings', style: TextStyle(color: Colors.white70, fontSize: 16)),
+          const SizedBox(height: 8),
+          Text('₹${earnings.toInt()}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_upward, color: Colors.green, size: 14),
+                Text(' +15% from yesterday', style: TextStyle(color: Colors.green, fontSize: 12)),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDeliveryCard(DeliveryOrder order, DeliveryProvider provider) {
+  Widget _buildOrderCard(DeliveryProvider provider, Map<String, dynamic> order) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -107,44 +122,50 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
         border: Border.all(color: Colors.orange, width: 2),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.location_on, color: Colors.orange),
-              const SizedBox(width: 8),
-              Expanded(child: Text(order.address, style: const TextStyle(fontWeight: FontWeight.bold))),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(4)),
-                child: Text(order.status, style: const TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
+              Text('Order #${order['id'].toString().substring(0, 8).toUpperCase()}', 
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text('₹${order['totalAmount']}', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(height: 24),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Order #${order.id.substring(0, 8)}', style: const TextStyle(color: AppColors.slate)),
-              ElevatedButton(
-                onPressed: () => provider.updateOrderStatus(order.id, 'DELIVERED'),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF007185), foregroundColor: Colors.white),
-                child: const Text('Mark Delivered'),
-              ),
+              const Icon(Icons.location_on_outlined, size: 16, color: Colors.orange),
+              const SizedBox(width: 8),
+              Expanded(child: Text(order['shippingAddress'] ?? 'N/A', style: const TextStyle(fontSize: 13, color: AppColors.slate))),
             ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: provider.isLoading ? null : () async {
+                final success = await provider.updateOrderStatus(order['id'], 'DELIVERED');
+                if (success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order marked as delivered!')));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: provider.isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Text('Mark Delivered', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTaskList(List<DeliveryOrder> tasks) {
-    if (tasks.isEmpty) return const Text('No pending tasks available.');
-    return Column(
-      children: tasks.map((task) => _buildTaskItem(task)).toList(),
-    );
-  }
-
-  Widget _buildTaskItem(DeliveryOrder task) {
+  Widget _buildTaskItem(DeliveryProvider provider, DeliveryOrder task) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -161,15 +182,40 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Pick up Order', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Address: ${task.address}', maxLines: 1, overflow: TextOverflow.ellipsis,
+                const Text('New Task Available', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(task.address, maxLines: 1, overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 12, color: AppColors.slate)),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.slate),
+          ElevatedButton(
+            onPressed: provider.isLoading ? null : () async {
+              final success = await provider.acceptTask(task.id);
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Task accepted successfully!')));
+              } else if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to accept task')));
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E293B),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: provider.isLoading 
+              ? const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              : const Text('Accept', style: TextStyle(fontSize: 12)),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTaskList(DeliveryProvider provider, List<DeliveryOrder> tasks) {
+    if (tasks.isEmpty) return _buildEmptyState('No pending tasks available.');
+    return Column(
+      children: tasks.map((task) => _buildTaskItem(provider, task)).toList(),
     );
   }
 }

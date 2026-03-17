@@ -5,24 +5,24 @@ class Category {
   final String name;
   final String? description;
   final String? imageUrl;
+  final List<SubCategory>? subCategories;
 
   Category({
     required this.id,
     required this.name,
     this.description,
     this.imageUrl,
+    this.subCategories,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
-    String? img = json['imageUrl'];
-    if (img != null && !img.startsWith('http')) {
-      img = '${ApiClient.baseUrl}$img';
-    }
     return Category(
-      id: json['id']?.toString() ?? '',
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
       name: json['name'] ?? '',
-      description: json['description'],
-      imageUrl: img,
+      imageUrl: _processImageUrl(json['image']),
+      subCategories: (json['subCategories'] as List?)
+          ?.map((item) => SubCategory.fromJson(item))
+          .toList(),
     );
   }
 }
@@ -30,22 +30,24 @@ class Category {
 class SubCategory {
   final String id;
   final String name;
-  final String? description;
-  final String categoryId;
 
-  SubCategory({
-    required this.id,
-    required this.name,
-    this.description,
-    required this.categoryId,
-  });
+  SubCategory({required this.id, required this.name});
 
   factory SubCategory.fromJson(Map<String, dynamic> json) {
     return SubCategory(
-      id: json['id']?.toString() ?? '',
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
       name: json['name'] ?? '',
-      description: json['description'],
-      categoryId: json['category']?['id']?.toString() ?? '',
     );
   }
+}
+
+String? _processImageUrl(dynamic imageJson) {
+  if (imageJson == null) {
+    return null;
+  }
+  String? img = imageJson is String ? imageJson : imageJson['url'];
+  if (img != null && !img.startsWith('http')) {
+    img = '${ApiClient.baseUrl}$img';
+  }
+  return img;
 }

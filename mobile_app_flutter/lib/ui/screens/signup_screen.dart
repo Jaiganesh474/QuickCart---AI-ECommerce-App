@@ -14,8 +14,16 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _selectedRole = 'USER';
   bool _obscureText = true;
+
+  final List<Map<String, String>> _roles = [
+    {'label': 'Member / Customer', 'value': 'USER'},
+    {'label': 'Administrator', 'value': 'ADMIN'},
+    {'label': 'Delivery Agent', 'value': 'DELIVERY_AGENT'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        title: const Text('Create Account', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: AppColors.slate900,
@@ -35,15 +44,37 @@ class _SignupScreenState extends State<SignupScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Create Account',
+                'Join QuickCart',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
               ),
               const SizedBox(height: 8),
               Text(
-                'Sign up to get started with QuickCart',
+                'Complete your details to get started',
                 style: TextStyle(fontSize: 16, color: AppColors.slate500),
               ),
               const SizedBox(height: 32),
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                decoration: InputDecoration(
+                  labelText: 'Sign up as',
+                  prefixIcon: const Icon(Icons.people_outline),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                ),
+                items: _roles.map((role) {
+                  return DropdownMenuItem(
+                    value: role['value'],
+                    child: Text(role['label']!),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedRole = val);
+                },
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
@@ -59,9 +90,24 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email Address',
                   prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _mobileController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: 'Mobile Number',
+                  prefixIcon: const Icon(Icons.phone_android_outlined),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -93,14 +139,19 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: authProvider.loading ? null : () async {
-                    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                    if (_nameController.text.isEmpty || 
+                        _emailController.text.isEmpty || 
+                        _passwordController.text.isEmpty ||
+                        _mobileController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
                       return;
                     }
                     final success = await authProvider.register(
                       _nameController.text,
                       _emailController.text, 
-                      _passwordController.text
+                      _passwordController.text,
+                      mobileNumber: _mobileController.text,
+                      role: _selectedRole,
                     );
                     if (success) {
                       if (mounted) {

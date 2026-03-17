@@ -73,6 +73,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(user?.name ?? 'Guest User', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 Text(user?.email ?? 'Sign in to see more', style: const TextStyle(color: AppColors.slate)),
+                if (user?.mobileNumber != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(user!.mobileNumber!, style: const TextStyle(color: AppColors.slate, fontSize: 13)),
+                  ),
                 if (user?.role != null)
                   Container(
                     margin: const EdgeInsets.only(top: 8),

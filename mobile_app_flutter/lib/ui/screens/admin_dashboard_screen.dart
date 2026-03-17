@@ -66,10 +66,141 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 'dashboard':
         return _buildDashboardOverview();
       case 'products':
-        return const Center(child: Text('Product Management Screen'));
+        return _buildProductManagement();
+      case 'orders':
+        return _buildOrderManagement();
+      case 'banners':
+        return _buildBannerManagement();
       default:
-        return const Center(child: Text('Coming Soon'));
+        return _buildDashboardOverview();
     }
+  }
+
+  Widget _buildProductManagement() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search products...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.add),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemBuilder: (context, index) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.slate100),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(color: AppColors.slate50, borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.inventory_2, color: AppColors.slate),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Premium Product Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('In Stock: 42 • Electronics', style: TextStyle(fontSize: 12, color: AppColors.slate)),
+                      ],
+                    ),
+                  ),
+                  IconButton(icon: const Icon(Icons.edit_outlined), onPressed: () {}),
+                  IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () {}),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrderManagement() {
+    return ListView.builder(
+      itemCount: 10,
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) => Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.slate100),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Order #882193', style: TextStyle(fontWeight: FontWeight.bold)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(4)),
+                  child: Text('SHIPPED', style: TextStyle(color: Colors.blue[800], fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Customer: Rahul Kumar', style: TextStyle(color: AppColors.slate, fontSize: 13)),
+                Text('Total: ₹1,299', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(onPressed: () {}, child: const Text('Details')),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                  child: const Text('Update Status'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBannerManagement() {
+    return const Center(child: Text('Banner Management Coming Soon'));
   }
 
   Widget _buildDashboardOverview() {
