@@ -56,6 +56,21 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
     }
 
+    @PutMapping("/role")
+    public ResponseEntity<?> updateRole(@RequestBody Map<String, String> req, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        String newRoleStr = req.get("role");
+        
+        try {
+            com.quickcart.entity.Role newRole = com.quickcart.entity.Role.valueOf(newRoleStr);
+            user.setRole(newRole);
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Role updated to " + newRoleStr));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role specified"));
+        }
+    }
+
     @DeleteMapping("/deactivate")
     public ResponseEntity<?> deactivateAccount(Authentication auth) {
         String email = auth.getName();

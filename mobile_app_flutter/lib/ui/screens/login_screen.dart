@@ -141,7 +141,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       }
                     } else {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Failed: Please check your credentials and role')));
+                      if (mounted) {
+                         final errorMsg = authProvider.authError ?? 'Login Failed: Please check your credentials and role';
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                           content: Text(errorMsg),
+                           backgroundColor: Colors.redAccent,
+                         ));
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

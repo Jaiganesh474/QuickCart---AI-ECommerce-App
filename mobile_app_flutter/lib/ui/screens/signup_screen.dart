@@ -162,7 +162,13 @@ class _SignupScreenState extends State<SignupScreen> {
                         );
                       }
                     } else {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Failed')));
+                      if (mounted) {
+                        final errorMsg = authProvider.authError ?? 'Registration Failed';
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(errorMsg),
+                          backgroundColor: Colors.redAccent,
+                        ));
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

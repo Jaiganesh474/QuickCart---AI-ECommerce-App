@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/category.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _sidebarController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  int _selectedIndex = 0; // Added this line
 
   @override
   void dispose() {
@@ -38,10 +40,44 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+    final cart = Provider.of<CartProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
     
     return Scaffold(
       key: _scaffoldKey,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: const Color(0xFF6366F1),
+        shape: const CircleBorder(),
+        child: Badge(
+          backgroundColor: Colors.red,
+          child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+        ),
+      ),
       drawer: _buildSidebar(),
+      bottomNavigationBar: BottomNavigationBar( // Added this block
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.orange,
+        unselectedItemColor: AppColors.slate500,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(icon: Icon(Icons.grid_view), activeIcon: Icon(Icons.grid_view_sharp), label: 'Categories'),
+          BottomNavigationBarItem(
+            icon: Badge(
+              label: Text(cart.totalItems.toString()),
+              isLabelVisible: cart.totalItems > 0,
+              child: const Icon(Icons.shopping_bag_outlined),
+            ), 
+            label: 'Cart'
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Orders'),
+          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Account'),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => productProvider.fetchHomeData(),
         child: productProvider.isLoading 
@@ -110,39 +146,79 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAppBar() {
+    final cart = Provider.of<CartProvider>(context);
     return SliverAppBar(
       pinned: true,
       centerTitle: true,
-      title: CachedNetworkImage(
-        imageUrl: 'https://quickcart-backend-8x2e.onrender.com/logocroppedquick-bg.png',
-        height: 35,
-        placeholder: (context, url) => const SizedBox(height: 35, width: 100, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
-        errorWidget: (context, url, error) => const Text('QuickCart', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Image.network(
+        'https://quickcart-backend-8x2e.onrender.com/logocroppedquick-bg.png',
+        height: 30,
+        errorBuilder: (context, error, stackTrace) => const Text('QuickCart', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+      leading: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.menu, size: 20), 
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          const Text('ALL', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white)),
+        ],
       ),
       actions: [
-        IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-        }),
-        IconButton(icon: const Icon(Icons.shopping_cart_outlined), onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
-        }),
+        Badge(
+          label: const Text('3'),
+          backgroundColor: Colors.red,
+          child: IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+          }),
+        ),
+        Badge(
+          label: Text(cart.totalItems.toString()),
+          isLabelVisible: cart.totalItems > 0,
+          backgroundColor: Colors.orange,
+          child: IconButton(icon: const Icon(Icons.shopping_cart_outlined), onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+          }),
+        ),
         const SizedBox(width: 4),
         Builder(
           builder: (context) {
             final auth = Provider.of<AuthProvider>(context);
             if (auth.user != null) {
-              return GestureDetector(
-                onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.orange.withOpacity(0.9),
-                    child: Text(
-                      (auth.user?.name ?? 'U').substring(0, 1).toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: PopupMenuButton<String>(
+                  offset: const Offset(0, 50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onSelected: (val) {
+                    if (val == 'account' || val == 'orders') {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                    } else if (val == 'logout') {
+                      auth.logout();
+                    } else if (val == 'seller') {
+                      auth.becomeProfessional('SELLER');
+                    } else if (val == 'agent') {
+                      auth.becomeProfessional('DELIVERY_AGENT');
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      enabled: false,
+                      child: Text(auth.user!.email, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black)),
                     ),
-                  ),
+                    const PopupMenuDivider(),
+                    _buildPopupItem('orders', Icons.inventory_2_outlined, 'Your Orders'),
+                    _buildPopupItem('account', Icons.person_outline, 'Your Profile'),
+                    _buildPopupItem('wishlist', Icons.favorite_border, 'Your Wishlist'),
+                    _buildPopupItem('settings', Icons.settings_outlined, 'Settings'),
+                    _buildPopupItem('seller', Icons.local_shipping_outlined, 'Become a Seller', color: Colors.orange),
+                    _buildPopupItem('agent', Icons.shield_outlined, 'Become an Agent', color: Colors.blue),
+                    _buildPopupItem('logout', Icons.logout, 'Sign Out', color: Colors.red),
+                  ],
+                  child: const Icon(Icons.person_outline, color: Colors.white),
                 ),
               );
             }
@@ -154,6 +230,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
       backgroundColor: const Color(0xFF1E293B),
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupItem(String value, IconData icon, String title, {Color? color}) {
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color ?? AppColors.slate600),
+          const SizedBox(width: 12),
+          Text(title, style: TextStyle(color: color ?? AppColors.slate800, fontWeight: color != null ? FontWeight.bold : FontWeight.normal)),
+        ],
+      ),
     );
   }
 
@@ -255,27 +344,21 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 65,
+              height: 65,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: category.imageUrl != null 
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: category.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))),
-                      errorWidget: (context, url, error) => const Icon(Icons.category_outlined, color: Colors.orange),
-                    ),
-                  )
-                : const Icon(Icons.category_outlined, color: Colors.orange),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: category.imageUrl != null 
+                  ? CachedNetworkImage(imageUrl: category.imageUrl!, fit: BoxFit.cover)
+                  : const Icon(Icons.category, color: Colors.orange),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(category.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(category.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.slate700)),
           ],
         ),
       ),
@@ -365,54 +448,72 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product)));
       },
       child: Container(
-        width: 150,
+        width: 160,
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 130,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: product.imageUrl != null 
-                  ? CachedNetworkImage(
-                      imageUrl: product.imageUrl!,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: AppColors.slate50,
-                        highlightColor: Colors.white,
-                        child: Container(color: Colors.white),
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Center(
+                      child: product.imageUrl != null 
+                        ? CachedNetworkImage(
+                            imageUrl: product.imageUrl!,
+                            fit: BoxFit.contain,
+                          )
+                        : const Icon(Icons.image, color: Colors.grey),
+                    ),
+                  ),
+                  if (product.offerPercentage > 0)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCC0C39),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${product.offerPercentage.toInt()}% off  Deal',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      errorWidget: (c,e,s) => const Icon(Icons.image, color: AppColors.slate),
-                    )
-                  : const Center(child: Icon(Icons.image, color: AppColors.slate)),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            if (product.offerPercentage > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCC0C39),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text("${product.offerPercentage.toInt()}% off", 
-                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('₹ ${product.effectivePrice.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      if (product.offerPercentage > 0) ...[
+                        const SizedBox(width: 4),
+                        Text('₹${product.price.toInt()}', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 10)),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.slate700),
+                  ),
+                ],
               ),
-            const SizedBox(height: 4),
-            Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, 
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, height: 1.2)),
-            const Spacer(),
-            Text("₹${product.effectivePrice.toInt()}", 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
           ],
         ),
       ),
@@ -421,69 +522,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSidebar() {
     final auth = Provider.of<AuthProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      backgroundColor: Colors.white,
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: Color(0xFF1E293B)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
+          Container(
+            padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
+            color: const Color(0xFF1E293B),
+            child: Row(
               children: [
-                const CircleAvatar(backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white)),
-                const SizedBox(height: 12),
-                Text(auth.user?.name ?? 'Guest User', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                const Icon(Icons.person_outline, color: Colors.white, size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  'Hello, ${auth.user?.name ?? 'Guest'}',
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
           ),
-          const ListTile(leading: Icon(Icons.trending_up), title: Text('Trending Deals')),
-          const ListTile(leading: Icon(Icons.star_outline), title: Text('Bestsellers')),
-          const Divider(),
-          if (auth.user != null) ...[
-            ListTile(
-              leading: const Icon(Icons.person_outline), 
-              title: const Text('My Account'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
+                  child: Text('HIGHLIGHTS', style: TextStyle(color: AppColors.slate500, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2)),
+                ),
+                _buildDrawerItem(Icons.trending_up, 'Trending Deals', () => Navigator.pop(context), iconColor: Colors.orange),
+                _buildDrawerItem(Icons.auto_awesome_outlined, 'Bestsellers', () => Navigator.pop(context), iconColor: Colors.orange),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
+                  child: Text('SHOP BY CATEGORY', style: TextStyle(color: AppColors.slate500, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2)),
+                ),
+                ...productProvider.categories.map((cat) => ListTile(
+                  title: Text(cat.name, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                  trailing: const Icon(Icons.chevron_right, size: 20, color: AppColors.slate300),
+                  onTap: () {
+                    final catProducts = productProvider.getProductsByCategory(cat.id);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => CategoryProductsScreen(category: cat, products: catProducts)));
+                  },
+                  dense: true,
+                )),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.shopping_bag_outlined), 
-              title: const Text('My Orders'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications_outlined), 
-              title: const Text('My Notifications'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
-            ),
-            const Divider(),
-          ],
-          if (auth.user == null)
-            ListTile(
-              leading: const Icon(Icons.login), 
-              title: const Text('Login / Sign Up'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
-            ),
-          if (auth.user?.role == 'ADMIN')
-            ListTile(
-              leading: const Icon(Icons.admin_panel_settings_outlined), 
-              title: const Text('Admin Dashboard'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen())),
-            ),
-          if (auth.user?.role == 'DELIVERY_AGENT')
-            ListTile(
-              leading: const Icon(Icons.delivery_dining_outlined), 
-              title: const Text('Delivery Hub'),
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DeliveryDashboardScreen())),
-            ),
-          if (auth.user != null)
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red), 
-              title: const Text('Logout', style: TextStyle(color: Colors.red)),
-              onTap: () => auth.logout(),
-            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap, {Color? iconColor}) {
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? AppColors.slate600, size: 22),
+      title: Text(title, style: const TextStyle(color: AppColors.slate800, fontWeight: FontWeight.w500, fontSize: 14)),
+      onTap: onTap,
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
     );
   }
 }

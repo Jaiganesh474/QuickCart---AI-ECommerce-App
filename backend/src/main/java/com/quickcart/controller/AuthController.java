@@ -16,8 +16,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
-            authService.initiateRegistration(request.getName(), request.getEmail(), request.getPassword(), request.getMobileNumber());
-            return ResponseEntity.ok(new ApiResponse(true, "OTP sent to email and mobile"));
+            String token = authService.initiateRegistration(
+                request.getName(), 
+                request.getEmail(), 
+                request.getPassword(), 
+                request.getMobileNumber(),
+                request.getRole()
+            );
+            return ResponseEntity.ok(new AuthResponse(true, "Registration successful", token));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage()));
         }
@@ -108,6 +114,17 @@ public class AuthController {
         try {
             String token = authService.switchToCustomer(request.getEmail());
             return ResponseEntity.ok(new AuthResponse(true, "Role switched to Customer successfully", token));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage()));
+        }
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(org.springframework.security.core.Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new ApiResponse(false, "Session expired. Please login again."));
+        }
+        try {
+            return ResponseEntity.ok(authService.getProfile(auth.getName()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage()));
         }

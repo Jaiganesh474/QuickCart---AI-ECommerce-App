@@ -39,7 +39,7 @@ public class AuthService {
         return String.format("%04d", new Random().nextInt(10000));
     }
 
-    public void initiateRegistration(String name, String email, String password, String mobileNumber) throws Exception {
+    public String initiateRegistration(String name, String email, String password, String mobileNumber, String roleStr) throws Exception {
         if (userRepository.existsByEmail(email)) {
             throw new Exception("Email is already registered.");
         }
@@ -49,11 +49,18 @@ public class AuthService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setMobileNumber(mobileNumber);
-        user.setRole(Role.USER);
-        user.setVerified(false);
+        
+        Role role = Role.USER;
+        if (roleStr != null) {
+            try {
+                role = Role.valueOf(roleStr.toUpperCase());
+            } catch (Exception e) {}
+        }
+        user.setRole(role);
+        user.setVerified(true);
         userRepository.save(user);
 
-        sendOtpNotifications(email, mobileNumber, "QuickCart: Registration OTP");
+        return jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getName(), user.getMobileNumber());
     }
 
     public String verifyRegistrationOtp(String email, String otp) throws Exception {
@@ -196,5 +203,9 @@ public class AuthService {
         if (otpVerification.getId() != null) {
             otpRepository.deleteById(otpVerification.getId());
         }
+    }
+    public User getProfile(String email) throws Exception {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("User not found"));
     }
 }
