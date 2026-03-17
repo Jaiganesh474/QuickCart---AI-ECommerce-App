@@ -21,9 +21,9 @@ class CategoryProductsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(category.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        title: Text(category.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: const Color(0xFF1E293B),
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: products.isEmpty 

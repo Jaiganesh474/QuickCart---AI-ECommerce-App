@@ -48,7 +48,7 @@ class ProductProvider with ChangeNotifier {
   List<Product> get searchResults => _searchResults;
 
   Future<void> searchProducts(String query) async {
-    if (query.isEmpty) {
+    if (query.trim().isEmpty) {
       _searchResults = [];
       notifyListeners();
       return;

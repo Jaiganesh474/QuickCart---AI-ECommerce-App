@@ -126,9 +126,31 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(icon: const Icon(Icons.shopping_cart_outlined), onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
         }),
-        IconButton(
-          icon: const Icon(Icons.person_outline), 
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        const SizedBox(width: 4),
+        Builder(
+          builder: (context) {
+            final auth = Provider.of<AuthProvider>(context);
+            if (auth.user != null) {
+              return GestureDetector(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.orange.withOpacity(0.9),
+                    child: Text(
+                      (auth.user?.name ?? 'U').substring(0, 1).toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              );
+            }
+            return IconButton(
+              icon: const Icon(Icons.person_outline), 
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+            );
+          }
         ),
       ],
       backgroundColor: const Color(0xFF1E293B),

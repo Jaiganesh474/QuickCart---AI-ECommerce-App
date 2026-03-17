@@ -74,6 +74,9 @@ class AuthProvider with ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('quickcart_jwt', token);
         
+        // MANUALLY update dio headers for the IMMEDIATE fetchProfile call
+        _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
+        
         await fetchProfile();
         return true;
       }
@@ -103,6 +106,10 @@ class AuthProvider with ChangeNotifier {
         if (token != null) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('quickcart_jwt', token);
+          
+          // MANUALLY update dio headers for the IMMEDIATE fetchProfile call
+          _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
+          
           await fetchProfile();
         }
         return true;

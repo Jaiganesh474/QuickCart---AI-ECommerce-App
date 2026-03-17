@@ -20,10 +20,6 @@ class ApiClient {
         }
         return handler.next(options);
       },
-      onError: (e, handler) {
-        // Handle global error cases like 401 Unauthorized
-        return handler.next(e);
-      },
     ));
   }
 
