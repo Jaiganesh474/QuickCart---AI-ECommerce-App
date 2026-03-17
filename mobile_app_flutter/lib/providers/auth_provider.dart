@@ -36,6 +36,7 @@ class AuthProvider with ChangeNotifier {
     final token = prefs.getString('quickcart_jwt');
     
     if (token != null) {
+      _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
       await fetchProfile();
     }
   }
@@ -46,11 +47,15 @@ class AuthProvider with ChangeNotifier {
     try {
       final response = await _apiClient.dio.get('/api/auth/profile');
       if (response.statusCode == 200) {
-        _user = User.fromJson(response.data);
+        final userData = response.data;
+        // The backend might return user data directly or wrapped in a 'user' key
+        final profileJson = userData.containsKey('user') ? userData['user'] : userData;
+        _user = User.fromJson(profileJson);
+        notifyListeners(); // Ensure UI knows user is loaded
       }
     } catch (e) {
       print("Profile fetch error: $e");
-      logout(); // Token might be invalid
+      // Don't auto-logout here as it might be a temporary network issue
     } finally {
       _loading = false;
       notifyListeners();
@@ -69,16 +74,18 @@ class AuthProvider with ChangeNotifier {
 
       final response = await _apiClient.dio.post('/api/auth/login', data: data);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.data != null) {
         final token = response.data['token'];
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('quickcart_jwt', token);
-        
-        // MANUALLY update dio headers for the IMMEDIATE fetchProfile call
-        _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
-        
-        await fetchProfile();
-        return true;
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('quickcart_jwt', token);
+          
+          // Re-instantiate or explicitly update the token for all future calls
+          _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
+          
+          await fetchProfile();
+          return true;
+        }
       }
     } catch (e) {
       print("Login error: $e");
@@ -101,13 +108,12 @@ class AuthProvider with ChangeNotifier {
         if (role != null) 'role': role,
       });
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
+      if ((response.statusCode == 201 || response.statusCode == 200) && response.data != null) {
         final token = response.data['token'];
         if (token != null) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('quickcart_jwt', token);
           
-          // MANUALLY update dio headers for the IMMEDIATE fetchProfile call
           _apiClient.dio.options.headers['Authorization'] = 'Bearer $token';
           
           await fetchProfile();
@@ -126,6 +132,7 @@ class AuthProvider with ChangeNotifier {
   void logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('quickcart_jwt');
+    _apiClient.dio.options.headers.remove('Authorization');
     _user = null;
     _orders = [];
     notifyListeners();

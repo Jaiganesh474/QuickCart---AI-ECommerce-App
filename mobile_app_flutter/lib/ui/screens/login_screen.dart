@@ -133,7 +133,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       role: _selectedRole,
                     );
                     if (success) {
-                      if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                      if (mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context, 
+                          MaterialPageRoute(builder: (_) => const HomeScreen()),
+                          (route) => false,
+                        );
+                      }
                     } else {
                       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Failed: Please check your credentials and role')));
                     }
