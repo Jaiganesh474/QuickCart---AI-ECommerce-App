@@ -15,6 +15,8 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   late Razorpay _razorpay;
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _zipController = TextEditingController();
@@ -26,11 +28,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    
+    // Prefill user details if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      if (auth.user != null) {
+        _nameController.text = auth.user!.name;
+        _phoneController.text = auth.user!.mobileNumber ?? '';
+      }
+    });
   }
 
   @override
   void dispose() {
     _razorpay.clear();
+    _nameController.dispose();
+    _phoneController.dispose();
     _addressController.dispose();
     _cityController.dispose();
     _zipController.dispose();
@@ -39,7 +52,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     final cart = Provider.of<CartProvider>(context, listen: false);
-    final success = await cart.checkout();
+    
+    final shippingDetails = {
+      'fullName': _nameController.text,
+      'phoneNumber': _phoneController.text,
+      'streetAddress': _addressController.text,
+      'city': _cityController.text,
+      'zipCode': _zipController.text,
+      'country': 'India',
+    };
+
+    final success = await cart.checkout(
+      paymentMethod: 'RAZORPAY',
+      shippingAddress: shippingDetails,
+      paymentId: response.paymentId,
+    );
+    
     if (success) {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
@@ -67,18 +95,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = Provider.of<CartProvider>(context, listen: false);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     
-    if (_addressController.text.isEmpty || _cityController.text.isEmpty || _zipController.text.isEmpty) {
+    if (_nameController.text.isEmpty || _phoneController.text.isEmpty || 
+        _addressController.text.isEmpty || _cityController.text.isEmpty || _zipController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all address details')));
       return;
     }
 
     var options = {
-      'key': 'rzp_test_OWg69kOWg69kOW', // Placeholder test key
-      'amount': (cart.totalPrice * 100).toInt(), // amount in the smallest currency unit
+      'key': 'rzp_test_SOO8Ni1ctYOgwL', // Standard test key - replace with real if needed
+      'amount': (cart.totalPrice * 100).toInt(), 
       'name': 'QuickCart',
       'description': 'Order Payment',
       'prefill': {
-        'contact': auth.user?.mobileNumber ?? '',
+        'contact': _phoneController.text,
         'email': auth.user?.email ?? '',
       },
       'external': {
@@ -89,7 +118,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       _razorpay.open(options);
     } catch (e) {
-      print('Error starting Razorpay: $e');
+      debugPrint('Error starting Razorpay: $e');
     }
   }
 
@@ -110,6 +139,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: const EdgeInsets.all(20),
               children: [
                 _buildSectionTitle('Shipping Address'),
+                const SizedBox(height: 12),
+                _buildTextField('Full Name', _nameController),
+                const SizedBox(height: 12),
+                _buildTextField('Phone Number', _phoneController, keyboardType: TextInputType.phone),
                 const SizedBox(height: 12),
                 _buildTextField('Street Address', _addressController),
                 const SizedBox(height: 12),
@@ -167,15 +200,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller, {TextInputType? keyboardType}) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.slate200)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.slate200)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
     );
   }
@@ -196,8 +233,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             backgroundColor: const Color(0xFFF97316),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
           ),
-          child: const Text('Pay Now', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: const Text('Complete Payment', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
       ),
     );

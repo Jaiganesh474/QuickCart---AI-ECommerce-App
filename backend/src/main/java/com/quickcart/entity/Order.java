@@ -58,7 +58,7 @@ public class Order {
         updatedAt = LocalDateTime.now();
     }
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Address deliveryAddress;
 
     @Column(length = 100)

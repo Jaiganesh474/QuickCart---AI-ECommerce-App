@@ -20,6 +20,7 @@ import 'notification_screen.dart';
 import 'categories_screen.dart';
 import 'orders_screen.dart';
 import 'wishlist_screen.dart';
+import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -57,13 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       floatingActionButton: _selectedIndex == 0 ? FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6366F1),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen())),
+        backgroundColor: const Color(0xFFF97316),
         shape: const CircleBorder(),
-        child: Badge(
-          backgroundColor: Colors.red,
-          child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
-        ),
+        child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
       ) : null,
       drawer: _buildSidebar(),
       bottomNavigationBar: BottomNavigationBar( 

@@ -32,7 +32,12 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> checkout() async {
+  Future<bool> checkout({
+    String paymentMethod = "COD", 
+    Map<String, dynamic>? shippingAddress,
+    double discountAmount = 0.0,
+    String? paymentId,
+  }) async {
     if (_items.isEmpty) return false;
     
     _isLoading = true;
@@ -41,11 +46,16 @@ class CartProvider with ChangeNotifier {
     try {
       final response = await _apiClient.dio.post('/api/orders', data: {
         'items': _items.map((i) => {
-          'productId': i.product.id,
+          'product': {'id': i.product.id},
           'quantity': i.quantity,
           'price': i.product.effectivePrice,
         }).toList(),
         'totalAmount': totalPrice,
+        'discountAmount': discountAmount,
+        'paymentMethod': paymentMethod,
+        'paymentStatus': paymentMethod == 'RAZORPAY' ? 'COMPLETED' : 'PENDING',
+        'deliveryAddress': shippingAddress,
+        'trackingNumber': paymentId, // Using paymentId as a reference if available
       });
 
       if (response.statusCode == 201 || response.statusCode == 200) {
