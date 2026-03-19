@@ -6,8 +6,10 @@ class DeliveryOrder {
   final String address;
   final String status;
   final double itemsCost;
+  final String customerName;
+  final String customerPhone;
 
-  DeliveryOrder({required this.id, required this.address, required this.status, required this.itemsCost});
+  DeliveryOrder({required this.id, required this.address, required this.status, required this.itemsCost, required this.customerName, required this.customerPhone});
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
     return DeliveryOrder(
@@ -15,6 +17,8 @@ class DeliveryOrder {
       address: json['shippingAddress'] ?? 'N/A',
       status: json['status'] ?? 'PENDING',
       itemsCost: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      customerName: json['user'] != null ? json['user']['name'] ?? 'Guest' : 'Guest',
+      customerPhone: json['user'] != null ? json['user']['mobileNumber'] ?? 'N/A' : 'N/A',
     );
   }
 }
@@ -75,7 +79,7 @@ class DeliveryProvider with ChangeNotifier {
 
   Future<bool> updateOrderStatus(String orderId, String status) async {
     try {
-      final response = await _apiClient.dio.put('/api/orders/$orderId/status', data: {'status': status});
+      final response = await _apiClient.dio.put('/api/orders/$orderId/status', queryParameters: {'status': status});
       if (response.statusCode == 200) {
         await fetchDeliveryData();
         return true;

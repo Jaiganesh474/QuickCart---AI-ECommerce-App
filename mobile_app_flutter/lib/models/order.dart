@@ -12,6 +12,7 @@ class Order {
   final DateTime createdAt;
   final String paymentMethod;
   final Map<String, dynamic>? deliveryAddress;
+  final Map<String, dynamic>? user;
 
   Order({
     required this.id,
@@ -25,6 +26,7 @@ class Order {
     required this.createdAt,
     required this.paymentMethod,
     this.deliveryAddress,
+    this.user,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Order {
       createdAt: json['orderDate'] != null ? DateTime.parse(json['orderDate']) : DateTime.now(),
       paymentMethod: json['paymentMethod'] ?? 'COD',
       deliveryAddress: json['deliveryAddress'],
+      user: json['user'],
     );
   }
 }

@@ -169,7 +169,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Future<void> _updateStatus(Long id, String status) async {
+  Future<void> _updateStatus(String id, String status) async {
     try {
       await _apiClient.dio.put('/api/orders/$id/status', queryParameters: {'status': status});
       _fetchAllOrders();
@@ -265,7 +265,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('User: ${order.user?.name ?? "Guest"}', style: const TextStyle(color: AppColors.slate, fontSize: 13)),
+              Text('User: ${order.user?['name'] ?? "Guest"}', style: const TextStyle(color: AppColors.slate, fontSize: 13)),
               Text('₹${order.totalAmount.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
             ],
           ),

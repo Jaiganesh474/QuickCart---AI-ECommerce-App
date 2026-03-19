@@ -97,6 +97,20 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     return _buildEmptyState('No completed orders yet.');
   }
 
+  Widget _buildEmptyState(String message) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.slate100),
+      ),
+      child: Center(child: Text(message, style: const TextStyle(color: AppColors.slate))),
+    );
+  }
+
   Widget _buildOrderCard(DeliveryProvider provider, DeliveryOrder order) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -115,7 +129,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
               Text('Order #${order.id.toString().substring(0, 8).toUpperCase()}', 
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               DropdownButton<String>(
-                value: order.status,
+                value: ['ACCEPTED', 'OUT_FOR_DELIVERY', 'DELIVERED'].contains(order.status) ? order.status : 'ACCEPTED',
                 underline: const SizedBox(),
                 items: ['ACCEPTED', 'OUT_FOR_DELIVERY', 'DELIVERED']
                     .map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)))).toList(),
@@ -154,6 +168,14 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
       ],
     );
   }
+
+  Widget _buildTaskList(DeliveryProvider provider, List<DeliveryOrder> tasks) {
+    if (tasks.isEmpty) return _buildEmptyState('No pending tasks available.');
+    return ListView.builder(
+      itemCount: tasks.length,
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) => _buildTaskItem(provider, tasks[index]),
+    );
   }
 
   Widget _buildTaskItem(DeliveryProvider provider, DeliveryOrder task) {
@@ -200,13 +222,6 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTaskList(DeliveryProvider provider, List<DeliveryOrder> tasks) {
-    if (tasks.isEmpty) return _buildEmptyState('No pending tasks available.');
-    return Column(
-      children: tasks.map((task) => _buildTaskItem(provider, task)).toList(),
     );
   }
 }
