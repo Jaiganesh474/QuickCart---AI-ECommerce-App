@@ -1,6 +1,7 @@
 package com.quickcart.controller;
 
 import com.quickcart.entity.Order;
+import com.quickcart.entity.OrderStatus;
 import com.quickcart.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
