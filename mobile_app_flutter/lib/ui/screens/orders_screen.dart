@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import '../../models/order.dart';
+import 'order_details_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
   final bool showAppBar;
@@ -91,28 +92,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 Text('Order #${order.orderId}', style: const TextStyle(fontWeight: FontWeight.bold)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          const SizedBox(height: 12),
-          Text('Placed on ${dateFormat.format(order.createdAt)}', style: const TextStyle(color: AppColors.slate, fontSize: 12)),
-          const Divider(height: 24),
-          ...order.items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                Text('${item.quantity}x ', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                Expanded(child: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                Text('₹${item.price.toInt()}'),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(order.status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(order.status, style: TextStyle(color: _getStatusColor(order.status), fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
               ],
             ),
-          )),
-          const Divider(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Total Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('₹${order.totalAmount.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.orange)),
-            ],
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text('Placed on ${dateFormat.format(order.createdAt)}', style: const TextStyle(color: AppColors.slate, fontSize: 12)),
+            const Divider(height: 24),
+            ...order.items.map((item) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Text('${item.quantity}x ', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                  Expanded(child: Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  Text('₹${item.price.toInt()}'),
+                ],
+              ),
+            )),
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Total Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('₹${order.totalAmount.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.orange)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
