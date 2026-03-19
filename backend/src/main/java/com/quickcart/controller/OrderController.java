@@ -41,7 +41,7 @@ public class OrderController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DELIVERY_AGENT')")
     public ResponseEntity<Order> updateStatus(@PathVariable Long id, @RequestParam String status) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, OrderStatus.valueOf(status)));
     }
 
     @PutMapping("/{id}/cancel-request")

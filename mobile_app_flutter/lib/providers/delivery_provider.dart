@@ -14,7 +14,7 @@ class DeliveryOrder {
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
     return DeliveryOrder(
       id: json['id']?.toString() ?? '',
-      address: json['shippingAddress'] ?? 'N/A',
+      address: json['shippingAddress'] != null ? json['shippingAddress']['streetAddress'] ?? 'N/A' : 'N/A',
       status: json['status'] ?? 'PENDING',
       itemsCost: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
       customerName: json['user'] != null ? json['user']['name'] ?? 'Guest' : 'Guest',
@@ -26,28 +26,28 @@ class DeliveryOrder {
 class DeliveryProvider with ChangeNotifier {
   final ApiClient _apiClient = ApiClient();
   List<DeliveryOrder> _availableTasks = [];
-  DeliveryOrder? _activeOrder;
+  List<DeliveryOrder> _myOrders = [];
   bool _isLoading = false;
 
   List<DeliveryOrder> get availableTasks => _availableTasks;
-  DeliveryOrder? get activeOrder => _activeOrder;
+  List<DeliveryOrder> get myOrders => _myOrders;
+  DeliveryOrder? get activeOrder => _myOrders.isNotEmpty ? _myOrders.firstWhere((o) => o.status == 'OUT_FOR_DELIVERY', orElse: () => _myOrders.first) : null;
   bool get isLoading => _isLoading;
 
   Future<bool> fetchDeliveryData() async {
     _isLoading = true;
     notifyListeners();
     try {
-      final response = await _apiClient.dio.get('/api/delivery/tasks');
+      final response = await _apiClient.dio.get('/api/delivery/available');
       if (response.statusCode == 200) {
         final List data = response.data;
         _availableTasks = data.map((j) => DeliveryOrder.fromJson(j)).toList();
       }
       
-      final activeResponse = await _apiClient.dio.get('/api/delivery/active');
-      if (activeResponse.statusCode == 200 && activeResponse.data != null) {
-        _activeOrder = DeliveryOrder.fromJson(activeResponse.data);
-      } else {
-        _activeOrder = null;
+      final myResponse = await _apiClient.dio.get('/api/delivery/my-orders');
+      if (myResponse.statusCode == 200) {
+        final List data = myResponse.data;
+        _myOrders = data.map((j) => DeliveryOrder.fromJson(j)).toList();
       }
       return true;
     } catch (e) {
@@ -63,7 +63,7 @@ class DeliveryProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final response = await _apiClient.dio.post('/api/delivery/tasks/$orderId/accept');
+      final response = await _apiClient.dio.post('/api/delivery/pick/$orderId');
       if (response.statusCode == 200) {
         await fetchDeliveryData();
         return true;
@@ -79,7 +79,7 @@ class DeliveryProvider with ChangeNotifier {
 
   Future<bool> updateOrderStatus(String orderId, String status) async {
     try {
-      final response = await _apiClient.dio.put('/api/orders/$orderId/status', queryParameters: {'status': status});
+      final response = await _apiClient.dio.put('/api/orders/$orderId/status', queryParameters: {'status': status.toUpperCase()});
       if (response.statusCode == 200) {
         await fetchDeliveryData();
         return true;

@@ -84,17 +84,24 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
   }
 
   Widget _buildActiveOrderSection(DeliveryProvider delivery) {
-    if (delivery.activeOrder == null) return _buildEmptyState('No active order. Accept a task to start!');
+    final active = delivery.activeOrder;
+    if (active == null) return _buildEmptyState('No active order. Accept a task to start!');
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildOrderCard(delivery, delivery.activeOrder!),
+        _buildOrderCard(delivery, active),
       ],
     );
   }
 
   Widget _buildCompletedList(DeliveryProvider delivery) {
-    return _buildEmptyState('No completed orders yet.');
+    final completed = delivery.myOrders.where((o) => o.status == 'DELIVERED').toList();
+    if (completed.isEmpty) return _buildEmptyState('No completed orders yet.');
+    return ListView.builder(
+      itemCount: completed.length,
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) => _buildOrderCard(delivery, completed[index]),
+    );
   }
 
   Widget _buildEmptyState(String message) {
