@@ -6,6 +6,9 @@ import '../../core/app_colors.dart';
 import '../../models/order.dart';
 import 'orders_screen.dart';
 import 'wishlist_screen.dart';
+import 'addresses_screen.dart';
+import 'payment_methods_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,9 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => 
-      Provider.of<AuthProvider>(context, listen: false).fetchOrders()
-    );
   }
 
   @override
@@ -48,23 +48,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildAccountOption(context, Icons.favorite_border, 'My Wishlist', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()));
               }),
-              _buildAccountOption(context, Icons.location_on_outlined, 'Shipping Addresses', () {}),
-              _buildAccountOption(context, Icons.payment_outlined, 'Payment Methods', () {}),
-              _buildAccountOption(context, Icons.settings_outlined, 'Settings', () {}),
+              _buildAccountOption(context, Icons.location_on_outlined, 'Shipping Addresses', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddressesScreen()));
+              }),
+              _buildAccountOption(context, Icons.credit_card_outlined, 'Payment Methods', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()));
+              }),
+              _buildAccountOption(context, Icons.settings_outlined, 'Settings', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              }),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => auth.logout(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[50],
-                  foregroundColor: Colors.red,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton(
+                  onPressed: () => _showSignOutConfirmation(context, auth),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[50],
+                    foregroundColor: Colors.red,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                child: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
+    );
+  }
+
+  void _showSignOutConfirmation(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out from QuickCart?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.slate)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              auth.logout();
+            },
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 

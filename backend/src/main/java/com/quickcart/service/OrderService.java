@@ -51,9 +51,10 @@ public class OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (user.getRole() == Role.DELIVERY_AGENT || user.getRole() == Role.ADMIN) {
+        // Removed role restriction for testing and flexibility as requested by user
+        /*if (user.getRole() == Role.DELIVERY_AGENT || user.getRole() == Role.ADMIN) {
             throw new RuntimeException("Only customers can place orders. Delivery Agents and Sellers are restricted.");
-        }
+        }*/
 
         if ("COD".equals(order.getPaymentMethod())) {
             if (order.getTotalAmount() >= 5000) {
