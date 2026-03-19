@@ -57,6 +57,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildAccountOption(context, Icons.settings_outlined, 'Settings', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
               }),
+              const Divider(height: 32),
+              _buildAccountOption(context, Icons.storefront_outlined, 'Become a Seller', () => _handleBecomeRole('SELLER')),
+              _buildAccountOption(context, Icons.verified_user_outlined, 'Become an Agent', () => _handleBecomeRole('DELIVERY_AGENT')),
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -75,6 +78,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
     );
+  }
+
+  void _handleBecomeRole(String role) async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final success = await auth.becomeProfessional(role);
+    if (success) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Congratulations! You are now a $role')),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update role. Please try again.'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   void _showSignOutConfirmation(BuildContext context, AuthProvider auth) {

@@ -32,6 +32,18 @@ public class OrderController {
         return ResponseEntity.ok(orderService.placeOrder(order, auth.getName()));
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Order>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DELIVERY_AGENT')")
+    public ResponseEntity<Order> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+    }
+
     @PutMapping("/{id}/cancel-request")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Order> requestCancel(@PathVariable Long id, Authentication auth) {

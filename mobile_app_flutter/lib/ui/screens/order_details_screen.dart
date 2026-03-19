@@ -28,7 +28,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   Future<void> _cancelOrder() async {
     setState(() => _isCancelling = true);
     try {
-      final response = await _apiClient.dio.post('/api/orders/${_currentOrder.id}/cancel');
+      final response = await _apiClient.dio.put('/api/orders/${_currentOrder.id}/cancel-request');
       if (response.statusCode == 200) {
         setState(() {
           _currentOrder = Order.fromJson(response.data);

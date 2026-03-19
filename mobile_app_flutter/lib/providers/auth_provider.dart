@@ -48,6 +48,27 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> updateProfile(String name, String phone) async {
+    _loading = true;
+    notifyListeners();
+    try {
+      final response = await _apiClient.dio.put('/api/auth/profile', data: {
+        'name': name,
+        'mobileNumber': phone,
+      });
+      if (response.statusCode == 200) {
+        await fetchProfile();
+        return true;
+      }
+    } catch (e) {
+      print("Profile update error: $e");
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+    return false;
+  }
+
   Future<void> fetchProfile() async {
     _loading = true;
     notifyListeners();

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/api_client.dart';
 import '../../core/app_colors.dart';
 import 'order_success_screen.dart';
 
@@ -21,9 +22,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _cityController = TextEditingController();
   final _zipController = TextEditingController();
 
+  List<dynamic> _savedAddresses = [];
+  bool _addressesLoading = false;
+
+  Future<void> _fetchSavedAddresses() async {
+    setState(() => _addressesLoading = true);
+    try {
+      final response = await ApiClient().dio.get('/api/addresses');
+      if (response.statusCode == 200) {
+        setState(() => _savedAddresses = response.data);
+        // Pre-fill with default address if exists
+        final def = _savedAddresses.firstWhere((a) => a['isDefault'] == true, orElse: () => null);
+        if (def != null) _fillFromAddress(def);
+      }
+    } catch (e) {
+      debugPrint('Error fetching saved addresses: $e');
+    } finally {
+      setState(() => _addressesLoading = false);
+    }
+  }
+
+  void _fillFromAddress(Map<String, dynamic> addr) {
+    setState(() {
+      _nameController.text = addr['fullName'] ?? '';
+      _phoneController.text = addr['phoneNumber'] ?? '';
+      _addressController.text = addr['streetAddress'] ?? '';
+      _cityController.text = addr['city'] ?? '';
+      _zipController.text = addr['zipCode'] ?? '';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _fetchSavedAddresses();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -33,8 +65,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       if (auth.user != null) {
-        _nameController.text = auth.user!.name;
-        _phoneController.text = auth.user!.mobileNumber ?? '';
+        if (_nameController.text.isEmpty) _nameController.text = auth.user!.name;
+        if (_phoneController.text.isEmpty) _phoneController.text = auth.user!.mobileNumber ?? '';
       }
     });
   }
@@ -158,7 +190,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                _buildSectionTitle('Shipping Address'),
+                if (_savedAddresses.isNotEmpty) ...[
+                  _buildSectionTitle('Saved Addresses'),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _savedAddresses.length,
+                      itemBuilder: (context, index) {
+                        final addr = _savedAddresses[index];
+                        final isSelected = _addressController.text == addr['streetAddress'];
+                        return GestureDetector(
+                          onTap: () => _fillFromAddress(addr),
+                          child: Container(
+                            width: 220,
+                            margin: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: isSelected ? Colors.orange : const Color(0xFFF1F5F9), width: 2),
+                              boxShadow: isSelected ? [BoxShadow(color: Colors.orange.withOpacity(0.1), blurRadius: 8)] : null,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(addr['fullName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1),
+                                const SizedBox(height: 4),
+                                Text(addr['streetAddress'], style: const TextStyle(fontSize: 11, color: AppColors.slate), maxLines: 2),
+                                Text(addr['city'], style: const TextStyle(fontSize: 11, color: AppColors.slate)),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                _buildSectionTitle('Shipping Details'),
                 const SizedBox(height: 12),
                 _buildTextField('Full Name', _nameController),
                 const SizedBox(height: 12),

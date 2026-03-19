@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../core/api_client.dart';
+import '../../models/order.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -9,6 +11,7 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  final ApiClient _apiClient = ApiClient();
   String _activeTab = 'dashboard';
 
   @override
@@ -147,54 +150,126 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  List<Order> _allOrders = [];
+  bool _ordersLoading = false;
+  String _orderFilter = 'LIVE'; // LIVE, CANCEL_REQUEST, DELIVERED, CANCELLED
+
+  Future<void> _fetchAllOrders() async {
+    setState(() => _ordersLoading = true);
+    try {
+      final response = await _apiClient.dio.get('/api/orders/all');
+      if (response.statusCode == 200) {
+        final List data = response.data;
+        setState(() => _allOrders = data.map((json) => Order.fromJson(json)).toList());
+      }
+    } catch (e) {
+      debugPrint('Error fetching admin orders: $e');
+    } finally {
+      setState(() => _ordersLoading = false);
+    }
+  }
+
+  Future<void> _updateStatus(Long id, String status) async {
+    try {
+      await _apiClient.dio.put('/api/orders/$id/status', queryParameters: {'status': status});
+      _fetchAllOrders();
+    } catch (e) {
+      debugPrint('Error updating status: $e');
+    }
+  }
+
   Widget _buildOrderManagement() {
-    return ListView.builder(
-      itemCount: 10,
+    if (_allOrders.isEmpty && !_ordersLoading) _fetchAllOrders();
+
+    final filtered = _allOrders.where((o) {
+      if (_orderFilter == 'LIVE') return o.status != 'DELIVERED' && o.status != 'CANCELLED';
+      if (_orderFilter == 'CANCEL_REQUEST') return o.status == 'CANCEL_REQUEST' || o.status == 'CANCELLED';
+      if (_orderFilter == 'DELIVERED') return o.status == 'DELIVERED';
+      return o.status == 'CANCELLED';
+    }).toList();
+
+    return Column(
+      children: [
+        _buildOrderFilters(),
+        Expanded(
+          child: _ordersLoading 
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: _fetchAllOrders,
+                child: ListView.builder(
+                  itemCount: filtered.length,
+                  padding: const EdgeInsets.all(16),
+                  itemBuilder: (context, index) => _buildAdminOrderCard(filtered[index]),
+                ),
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrderFilters() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          _filterChip('LIVE', 'Live Orders'),
+          _filterChip('CANCEL_REQUEST', 'Cancel Requests'),
+          _filterChip('DELIVERED', 'Delivered'),
+          _filterChip('CANCELLED', 'Cancelled'),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String id, String label) {
+    final active = _orderFilter == id;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: active,
+        selectedColor: Colors.orange,
+        labelStyle: TextStyle(color: active ? Colors.white : Colors.black),
+        onSelected: (v) => setState(() => _orderFilter = id),
+      ),
+    );
+  }
+
+  Widget _buildAdminOrderCard(Order order) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      itemBuilder: (context, index) => Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.slate100),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Order #882193', style: TextStyle(fontWeight: FontWeight.bold)),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(4)),
-                  child: Text('SHIPPED', style: TextStyle(color: Colors.blue[800], fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-            const Divider(height: 24),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Customer: Rahul Kumar', style: TextStyle(color: AppColors.slate, fontSize: 13)),
-                Text('Total: ₹1,299', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(onPressed: () {}, child: const Text('Details')),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                  child: const Text('Update Status'),
-                ),
-              ],
-            ),
-          ],
-        ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.slate100),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('ORD-${order.orderId}', style: const TextStyle(fontWeight: FontWeight.bold)),
+              DropdownButton<String>(
+                value: order.status,
+                items: ['PENDING', 'CONFIRMED', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED']
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 10)))).toList(),
+                onChanged: (v) {
+                  if (v != null) _updateStatus(order.id!, v);
+                },
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('User: ${order.user?.name ?? "Guest"}', style: const TextStyle(color: AppColors.slate, fontSize: 13)),
+              Text('₹${order.totalAmount.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+            ],
+          ),
+        ],
       ),
     );
   }

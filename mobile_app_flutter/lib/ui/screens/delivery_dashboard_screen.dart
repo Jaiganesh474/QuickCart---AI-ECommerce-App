@@ -20,106 +20,91 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     );
   }
 
+  int _activeTabIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     final delivery = Provider.of<DeliveryProvider>(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Delivery Hub', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF1E293B),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh), 
-            onPressed: () => delivery.fetchDeliveryData()
-          ),
-        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: _buildTabs(),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () => delivery.fetchDeliveryData(),
-        child: delivery.isLoading && delivery.availableTasks.isEmpty
+        child: delivery.isLoading 
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildEarningsCard(1240.0), // Placeholder value
-                  const SizedBox(height: 24),
-                  const Text('Active Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  if (delivery.activeOrder != null) 
-                    _buildOrderCard(delivery, {
-                      'id': delivery.activeOrder!.id,
-                      'totalAmount': 129.0, // Placeholder
-                      'shippingAddress': delivery.activeOrder!.address,
-                    })
-                  else
-                    _buildEmptyState('No active order. Pick one from the list!'),
-                  const SizedBox(height: 32),
-                  Text('Available Tasks (${delivery.availableTasks.length})', 
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  _buildTaskList(delivery, delivery.availableTasks),
-                ],
-              ),
-            ),
+          : _buildTabContent(delivery),
       ),
     );
   }
 
-  Widget _buildEmptyState(String message) {
+  Widget _buildTabs() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.slate100),
-      ),
-      child: Center(child: Text(message, style: const TextStyle(color: AppColors.slate))),
-    );
-  }
-
-  Widget _buildEarningsCard(double earnings) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
-      ),
-      child: Column(
+      margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+      child: Row(
         children: [
-          const Text('Today\'s Earnings', style: TextStyle(color: Colors.white70, fontSize: 16)),
-          const SizedBox(height: 8),
-          Text('₹${earnings.toInt()}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.arrow_upward, color: Colors.green, size: 14),
-                Text(' +15% from yesterday', style: TextStyle(color: Colors.green, fontSize: 12)),
-              ],
-            ),
-          ),
+          _tabItem(0, 'Available'),
+          _tabItem(1, 'Active'),
+          _tabItem(2, 'Completed'),
         ],
       ),
     );
   }
 
-  Widget _buildOrderCard(DeliveryProvider provider, Map<String, dynamic> order) {
-    return Container(
+  Widget _tabItem(int index, String label) {
+    final active = _activeTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _activeTabIndex = index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: active ? Colors.orange : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(label, textAlign: TextAlign.center, style: TextStyle(color: active ? Colors.white : Colors.white70, fontWeight: FontWeight.bold, fontSize: 13)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabContent(DeliveryProvider delivery) {
+    if (_activeTabIndex == 0) return _buildTaskList(delivery, delivery.availableTasks);
+    if (_activeTabIndex == 1) return _buildActiveOrderSection(delivery);
+    return _buildCompletedList(delivery);
+  }
+
+  Widget _buildActiveOrderSection(DeliveryProvider delivery) {
+    if (delivery.activeOrder == null) return _buildEmptyState('No active order. Accept a task to start!');
+    return ListView(
       padding: const EdgeInsets.all(16),
+      children: [
+        _buildOrderCard(delivery, delivery.activeOrder!),
+      ],
+    );
+  }
+
+  Widget _buildCompletedList(DeliveryProvider delivery) {
+    return _buildEmptyState('No completed orders yet.');
+  }
+
+  Widget _buildOrderCard(DeliveryProvider provider, DeliveryOrder order) {
+    return Container(
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.orange, width: 2),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,42 +112,48 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Order #${order['id'].toString().substring(0, 8).toUpperCase()}', 
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text('₹${order['totalAmount']}', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const Divider(height: 24),
-          Row(
-            children: [
-              const Icon(Icons.location_on_outlined, size: 16, color: Colors.orange),
-              const SizedBox(width: 8),
-              Expanded(child: Text(order['shippingAddress'] ?? 'N/A', style: const TextStyle(fontSize: 13, color: AppColors.slate))),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: provider.isLoading ? null : () async {
-                final success = await provider.updateOrderStatus(order['id'], 'DELIVERED');
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order marked as delivered!')));
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              Text('Order #${order.id.toString().substring(0, 8).toUpperCase()}', 
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              DropdownButton<String>(
+                value: order.status,
+                underline: const SizedBox(),
+                items: ['ACCEPTED', 'OUT_FOR_DELIVERY', 'DELIVERED']
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)))).toList(),
+                onChanged: (v) {
+                  if (v != null) provider.updateOrderStatus(order.id, v);
+                },
               ),
-              child: provider.isLoading 
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('Mark Delivered', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
+            ],
           ),
+          const Divider(height: 32),
+          _infoRow(Icons.person_outline, 'Customer', order.customerName),
+          const SizedBox(height: 12),
+          _infoRow(Icons.location_on_outlined, 'Address', order.address),
+          const SizedBox(height: 12),
+          _infoRow(Icons.phone_outlined, 'Contact', order.customerPhone),
         ],
       ),
     );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: Colors.orange),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 11)),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
   }
 
   Widget _buildTaskItem(DeliveryProvider provider, DeliveryOrder task) {

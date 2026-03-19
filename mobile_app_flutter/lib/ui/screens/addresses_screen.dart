@@ -55,7 +55,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _showAddAddressDialog(),
+            onPressed: () => _showAddressModal(),
           )
         ],
       ),
@@ -84,7 +84,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
           const Text('No addresses found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.slate)),
           const SizedBox(height: 8),
           ElevatedButton(
-            onPressed: () => _showAddAddressDialog(),
+            onPressed: () => _showAddressModal(),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text('Add New Address'),
           )
@@ -130,6 +130,11 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 child: const Text('Delete', style: TextStyle(color: Colors.red)),
               ),
               const SizedBox(width: 8),
+              TextButton(
+                onPressed: () => _showAddressModal(address: addr),
+                child: const Text('Edit', style: TextStyle(color: Colors.blue)),
+              ),
+              const SizedBox(width: 8),
               if (addr['isDefault'] != true)
                 ElevatedButton(
                   onPressed: () async {
@@ -146,12 +151,12 @@ class _AddressesScreenState extends State<AddressesScreen> {
     );
   }
 
-  void _showAddAddressDialog() {
-    final nameController = TextEditingController();
-    final streetController = TextEditingController();
-    final cityController = TextEditingController();
-    final zipController = TextEditingController();
-    final phoneController = TextEditingController();
+  void _showAddressModal({Map<String, dynamic>? address}) {
+    final nameController = TextEditingController(text: address?['fullName']);
+    final streetController = TextEditingController(text: address?['streetAddress']);
+    final cityController = TextEditingController(text: address?['city']);
+    final zipController = TextEditingController(text: address?['zipCode']);
+    final phoneController = TextEditingController(text: address?['phoneNumber']);
 
     showModalBottomSheet(
       context: context,
@@ -163,7 +168,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Add New Address', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(address == null ? 'Add New Address' : 'Edit Address', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             _buildDialogField('Full Name', nameController),
             _buildDialogField('Street Address', streetController),
@@ -181,18 +186,23 @@ class _AddressesScreenState extends State<AddressesScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () async {
-                  await _apiClient.dio.post('/api/addresses', data: {
+                  final data = {
                     'fullName': nameController.text,
                     'streetAddress': streetController.text,
                     'city': cityController.text,
                     'zipCode': zipController.text,
                     'phoneNumber': phoneController.text,
-                  });
+                  };
+                  if (address == null) {
+                    await _apiClient.dio.post('/api/addresses', data: data);
+                  } else {
+                    await _apiClient.dio.put('/api/addresses/${address['id']}', data: data);
+                  }
                   if (mounted) Navigator.pop(context);
                   _fetchAddresses();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-                child: const Text('Save Address'),
+                child: Text(address == null ? 'Save Address' : 'Update Address'),
               ),
             ),
             const SizedBox(height: 20),
