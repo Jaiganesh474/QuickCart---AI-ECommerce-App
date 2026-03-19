@@ -25,7 +25,7 @@ class AuthProvider with ChangeNotifier {
     _authError = null;
     notifyListeners();
     try {
-      final response = await _apiClient.dio.get('/api/orders/my-orders');
+      final response = await _apiClient.dio.get('/api/orders');
       if (response.statusCode == 200) {
         final List data = response.data;
         _orders = data.map((json) => Order.fromJson(json)).toList();

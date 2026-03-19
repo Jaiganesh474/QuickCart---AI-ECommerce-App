@@ -51,6 +51,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator(color: Colors.orange)),
+    );
+
     final cart = Provider.of<CartProvider>(context, listen: false);
     
     final shippingDetails = {
@@ -62,20 +69,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'country': 'India',
     };
 
-    final success = await cart.checkout(
-      paymentMethod: 'RAZORPAY',
-      shippingAddress: shippingDetails,
-      paymentId: response.paymentId,
-    );
-    
-    if (success) {
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
-          (route) => false,
-        );
+    try {
+      final success = await cart.checkout(
+        paymentMethod: 'RAZORPAY',
+        shippingAddress: shippingDetails,
+        paymentId: response.paymentId,
+      );
+      
+      if (mounted) Navigator.pop(context); // Close loading indicator
+
+      if (success) {
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
+            (route) => false,
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order failed on backend. Please contact support.'), backgroundColor: Colors.red),
+          );
+        }
       }
+    } catch (e) {
+      if (mounted) Navigator.pop(context); // Close loading indicator
+      debugPrint("Checkout error: $e");
     }
   }
 

@@ -27,7 +27,7 @@ public class OrderController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Order> placeOrder(@RequestBody Order order, Authentication auth) {
         return ResponseEntity.ok(orderService.placeOrder(order, auth.getName()));
     }
