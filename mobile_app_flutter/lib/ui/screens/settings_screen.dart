@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
 
-class SettingsScreen extends StatelessWidget {
+import 'edit_profile_screen.dart';
+
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _darkTheme = false;
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +26,25 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _buildSection('Account Settings'),
-          _buildItem(Icons.person_outline, 'Edit Profile'),
-          _buildItem(Icons.notifications_outlined, 'Notification Preferences'),
-          _buildItem(Icons.lock_outline, 'Privacy & Security'),
+          _buildItem(Icons.person_outline, 'Edit Profile', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+          }),
+          _buildItem(Icons.notifications_outlined, 'Notification Preferences', () {}),
+          _buildItem(Icons.lock_outline, 'Privacy & Security', () {}),
           const SizedBox(height: 24),
           _buildSection('App Settings'),
-          _buildItem(Icons.language_outlined, 'App Language'),
-          _buildItem(Icons.dark_mode_outlined, 'Dark Theme', trailing: Switch(value: false, onChanged: (v) {})),
-          _buildItem(Icons.help_outline, 'Help & Support'),
-          _buildItem(Icons.info_outline, 'About QuickCart'),
+          _buildItem(Icons.language_outlined, 'App Language', () {}),
+          _buildItem(Icons.dark_mode_outlined, 'Dark Theme', null, 
+            trailing: Switch(
+              value: _darkTheme, 
+              onChanged: (v) => setState(() => _darkTheme = v),
+              activeColor: Colors.orange,
+            )
+          ),
+          _buildItem(Icons.help_outline, 'Help & Support', () {}),
+          _buildItem(Icons.info_outline, 'About QuickCart', () {}),
           const SizedBox(height: 32),
-          Text(
+          const Text(
             'QuickCart v1.0.0',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.slate300, fontSize: 13),
@@ -47,7 +64,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(IconData icon, String title, {Widget? trailing}) {
+  Widget _buildItem(IconData icon, String title, VoidCallback? onTap, {Widget? trailing}) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -56,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       title: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.normal)),
       trailing: trailing ?? const Icon(Icons.chevron_right, color: AppColors.slate200, size: 20),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

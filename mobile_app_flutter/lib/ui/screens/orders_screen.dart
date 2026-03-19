@@ -29,14 +29,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
     Widget body = auth.loading && auth.orders.isEmpty
         ? const Center(child: CircularProgressIndicator())
-        : ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (auth.orders.isEmpty)
-                _buildEmptyOrders()
-              else
-                ...auth.orders.map((order) => _buildOrderCard(order)),
-            ],
+        : RefreshIndicator(
+            onRefresh: () => auth.fetchOrders(),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                if (auth.orders.isEmpty)
+                  _buildEmptyOrders()
+                else
+                  ...auth.orders.map((order) => _buildOrderCard(order)),
+              ],
+            ),
           );
 
     if (!widget.showAppBar) return body;

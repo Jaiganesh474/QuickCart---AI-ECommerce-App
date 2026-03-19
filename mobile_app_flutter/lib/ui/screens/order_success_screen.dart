@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import 'home_screen.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
@@ -61,10 +62,9 @@ class OrderSuccessScreen extends StatelessWidget {
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to HomeScreen but selected index 3 (Orders)
-                          // In our HomeScreen.dart, it uses _selectedIndex
-                          // We can pass an initial index to HomeScreen if we want, OR just push and let user navigate.
-                          // But to be precise, I'll update HomeScreen to accept initial index.
+                          // Manually fetch orders to ensure the new one is visible
+                          Provider.of<AuthProvider>(context, listen: false).fetchOrders();
+                          
                           Navigator.pushAndRemoveUntil(
                             context, 
                             MaterialPageRoute(builder: (_) => const HomeScreen(initialIndex: 3)), 
